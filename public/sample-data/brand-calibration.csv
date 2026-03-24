@@ -1,0 +1,9 @@
+brandCode,brandName,warehouseCode,baseSku,sku,productName,channel,season,plannedQty,notes
+CG-APP,Callaway Apparel,WH88,CG-PRO-SEED-001,CG-PRO-SEED-001-1,Callaway Seed Polo,Retail,SS26,12,Expected full calibration if seed data exists
+CG-APP,Callaway Apparel,WH90,CG-PRO-SEED-001,CG-PRO-SEED-001-2,Callaway Seed Polo,Retail,SS26,6,Variant routed to Warehouse 90
+TM,Travis Mathew,WH88,TM-CORE-001,,TM Core Quarter Zip,Dealer,FH26,4,Brand and warehouse match even without seeded product
+OG,Ogio,WH90,OG-BAG-100,,OG Alpha Backpack,Dealer,FH26,8,Brand and warehouse calibration
+CG-APP,Callaway Apparel,WH77,CG-PRO-SEED-001,CG-PRO-SEED-001-3,Callaway Seed Polo,Distributor,SS26,3,Warehouse intentionally unmatched
+ZZ,Unknown Brand,WH88,UNKNOWN-001,,Mystery Item,Dealer,FH26,2,Brand intentionally unmatched
+CG-APP,Callaway Apparel,WH88,,,Callaway Seed Polo,Dealer,SS26,5,Product name fallback row
+,,,,,,Dealer,FH26,1,No calibration keys in this row
