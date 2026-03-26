@@ -11,11 +11,14 @@ export default async function ProductSectionPage({
   params: {section: string};
 }) {
   const section = getCatalogSection(params.section);
+
   if (!section) {
     notFound();
   }
 
   const {catalog} = await loadCatalogRecords();
+
+
   const products = catalog.filter((product) => section.brandCodes.includes(product.brand.code));
 
   return (

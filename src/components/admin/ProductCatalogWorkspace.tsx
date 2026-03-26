@@ -18,50 +18,13 @@ import {
   X,
 } from "lucide-react";
 import {toCsv} from "@/lib/utils/csv";
+import GetAllBrands from "../brands/GetAllBrands";
+import GetAllAtributeSet from "../attributeSet/GetAllAtributeSet";
+import { ProductCatalogRecord, ProductCatalogWorkspaceProps } from "../products/ProductType";
+import { buildExportRows, downloadCsv } from "../products/utils/ProductExcel";
+import UpdateBrandAttribute from "../products/UpdateBrandAttribute";
+import ImportFile from "../products/importFile/ImportFile";
 
-type ProductAttributeGroup = {
-  key: string;
-  label: string;
-  values: string[];
-};
-
-type ProductVariantPreview = {
-  id: string;
-  sku: string;
-  title: string;
-  optionValues: Record<string, string>;
-  availableStock: number;
-};
-
-export type ProductCatalogRecord = {
-  id: string;
-  name: string;
-  slug: string;
-  baseSku: string;
-  brand: {
-    id: string;
-    name: string;
-    code: string;
-  };
-  category: string;
-  subcategory: string;
-  productType: string;
-  status: string;
-  availableStock: number;
-  variantCount: number;
-  variantSkus: string[];
-  variantTitles: string[];
-  variants: ProductVariantPreview[];
-  attributeGroups: ProductAttributeGroup[];
-  updatedAt: string;
-};
-
-type ProductCatalogWorkspaceProps = {
-  products: ProductCatalogRecord[];
-  title?: string;
-  description?: string;
-  badgeLabel?: string;
-};
 
 const SORT_OPTIONS = [
   {value: "latest", label: "Latest updated"},
@@ -91,39 +54,7 @@ function statusClasses(status: string) {
   return "border-white/10 bg-white/6 text-foreground/70";
 }
 
-function downloadCsv(filename: string, rows: Record<string, unknown>[]) {
-  const csv = toCsv(rows);
-  const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-}
 
-function buildExportRows(products: ProductCatalogRecord[]) {
-  return products.map((product) => ({
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
-    baseSku: product.baseSku,
-    brandCode: product.brand.code,
-    brandName: product.brand.name,
-    category: product.category,
-    subcategory: product.subcategory,
-    productType: product.productType,
-    status: product.status,
-    availableStock: product.availableStock,
-    variantCount: product.variantCount,
-    variantSkus: product.variantSkus.join(" | "),
-    attributes: product.attributeGroups
-      .map((group) => `${group.label}: ${group.values.join(", ")}`)
-      .join(" | "),
-  }));
-}
 
 export function ProductCatalogWorkspace({
   products,
@@ -377,7 +308,20 @@ export function ProductCatalogWorkspace({
     downloadCsv("products-selected.csv", buildExportRows(selectedProducts));
   }
 
+  const [isOpen,setIsOpen] = useState(false);
+   const handleImport = () => {
+    setIsOpen(true);
+   }
   return (
+    <>
+    {/* get all attributes  */}
+    <GetAllAtributeSet/>
+    {/* get all brands  */}
+    <GetAllBrands/>
+
+    {/* update current brand attribute  */}
+    <UpdateBrandAttribute/>
+
     <div className="space-y-4">
       <section className="premium-card overflow-hidden rounded-[28px]">
         <div className="grid gap-3 border-b border-border/60 px-4 py-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-end">
@@ -397,6 +341,13 @@ export function ProductCatalogWorkspace({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {/* <ImportFile /> */}
+                  <button
+              onClick={handleImport}
+              className="rounded-2xl border border-border/70 bg-background px-4 py-2.5 text-sm font-semibold text-foreground/76"
+            >
+              Import file
+            </button>
             <button
               onClick={exportVisible}
               className="rounded-2xl border border-border/70 bg-background px-4 py-2.5 text-sm font-semibold text-foreground/76"
@@ -814,6 +765,10 @@ export function ProductCatalogWorkspace({
         </motion.div>
       ) : null}
     </div>
+
+    {/* import file  */}
+    <ImportFile isOpen={isOpen} onClose={() => setIsOpen(false)} />
+    </>
   );
 }
 

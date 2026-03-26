@@ -1,10 +1,10 @@
+import { ProductCatalogRecord } from "@/components/products/ProductType";
 import dbConnect from "@/lib/db/connection";
 import {Brand} from "@/lib/db/models/Brand";
 import {InventoryLevel} from "@/lib/db/models/InventoryLevel";
 import {Product} from "@/lib/db/models/Product";
 import {Variant} from "@/lib/db/models/Variant";
 import {toPlainObject} from "@/lib/utils/serialization";
-import type {ProductCatalogRecord} from "@/components/admin/ProductCatalogWorkspace";
 
 export async function loadCatalogRecords() {
   await dbConnect();
@@ -21,6 +21,9 @@ export async function loadCatalogRecords() {
   const variants = toPlainObject(variantsRaw);
   const inventoryLevels = toPlainObject(inventoryLevelsRaw);
 
+
+  
+  
   const brandMap = new Map(
     brands.map((brand) => [
       String(brand._id ?? ""),

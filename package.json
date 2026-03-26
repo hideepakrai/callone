@@ -12,6 +12,7 @@
     "seed:legacy": "node --experimental-strip-types --experimental-specifier-resolution=node src/scripts/seed-sql.ts"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.11.2",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
@@ -21,7 +22,9 @@
     "next-auth": "^4.24.13",
     "react": "^18",
     "react-dom": "^18",
-    "tailwind-merge": "^3.5.0"
+    "react-redux": "^9.2.0",
+    "tailwind-merge": "^3.5.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",

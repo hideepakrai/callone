@@ -39,4 +39,4 @@ const AttributeSetSchema = new Schema<IAttributeSet>(
   { timestamps: true }
 );
 
-export const AttributeSet = mongoose.models.AttributeSet || mongoose.model<IAttributeSet>('AttributeSet', AttributeSetSchema);
+export const AttributeSet = mongoose.models.AttributeSet || mongoose.model<IAttributeSet>('AttributeSet', AttributeSetSchema, 'attributesets');
