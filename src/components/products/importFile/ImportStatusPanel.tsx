@@ -39,7 +39,7 @@ export default function ImportStatusPanel({
   disableClear = false,
 }: Props) {
   const visibleErrors = summary?.rowErrors?.slice(0, 8) ?? [];
-
+  console.log("summary",summary )
   return (
     <div className="space-y-4 rounded-[20px] border border-border/70 bg-foreground/2 p-5">
       <div className="flex items-start gap-4">

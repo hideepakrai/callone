@@ -32,6 +32,7 @@ import {getAdminBreadcrumbs, getAdminPageMeta} from "@/lib/admin/page-chrome";
 import {getAvailableViewRoles, VIEW_ROLE_LABELS} from "@/lib/auth/view-role";
 import {useTheme} from "../ThemeProvider";
 import {MegaSearch} from "../ui/MegaSearch";
+import GetAllProducts from "../products/GetAllProducts";
 
 type AdminShellProps = {
   children: React.ReactNode;
@@ -402,6 +403,8 @@ export function AdminShell({children, user}: AdminShellProps) {
   };
 
   return (
+    <>
+    <GetAllProducts/>
     <div className="relative min-h-screen overflow-hidden text-foreground selection:bg-primary/15 selection:text-foreground">
       <MegaSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} role={viewRole} />
 
@@ -1026,5 +1029,6 @@ export function AdminShell({children, user}: AdminShellProps) {
         </main>
       </div>
     </div>
+    </>
   );
 }

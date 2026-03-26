@@ -23,7 +23,7 @@ export default function ImportFile({isOpen,onClose}:Props) {
   const [progress, setProgress] = useState(0);
   const [progressLabel, setProgressLabel] = useState('');
   const [summary, setSummary] = useState<ImportSummary | null>(null);
-
+  console.log("summary--->",summary)
   const [importProduct, setImportProduct] = useState<ProductExcelData[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null);
    const {currentBrand}=useSelector((state:RootState)=>state.brand)
@@ -55,7 +55,6 @@ export default function ImportFile({isOpen,onClose}:Props) {
           const rawData = xlsx.utils.sheet_to_json(worksheet);
           const jsonData = rawData.map((item: any) => ({
             ...item,
-            baseSku: item.baseSku || item.sku || item.style_code || item["style_code Code"] || "",
             attributeSetId: currentAttribute?._id,
             brandId: currentBrand?._id,
             createdAt: new Date().toISOString(),
@@ -112,6 +111,7 @@ export default function ImportFile({isOpen,onClose}:Props) {
 
           const action = await dispatch(createTravisMathew(chunk));
           const result = action.payload as any;
+          console.log("result--->",result)
           const chunkSummary = result?.summary as ImportSummary | undefined;
 
           if (chunkSummary) {
@@ -132,7 +132,9 @@ export default function ImportFile({isOpen,onClose}:Props) {
               }))
             );
           }
-
+         console.log("insertedCount",insertedCount)
+         console.log("updatedCount",updatedCount)
+         
           setProgress(Math.min(100, Math.round(((index + chunk.length) / totalRows) * 100)));
           setSummary({
             totalRows,
@@ -177,6 +179,16 @@ export default function ImportFile({isOpen,onClose}:Props) {
     void runImport();
   };
 
+
+  const handleClose=()=>{
+    onClose();
+    setFile(null);
+    setImportProduct([]);
+    setSummary(null);
+    setProgress(0);
+    setProgressLabel('');
+    setStatus('idle');
+  }
   return (
     <>
       {/* <button
@@ -251,7 +263,7 @@ export default function ImportFile({isOpen,onClose}:Props) {
 
               <div className="flex items-center justify-end gap-3 border-t border-border/60 bg-foreground/[0.02] px-6 py-4">
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="rounded-2xl px-4 py-2 text-sm font-semibold text-foreground/70 transition-colors hover:bg-foreground/5"
                 >
                   Cancel

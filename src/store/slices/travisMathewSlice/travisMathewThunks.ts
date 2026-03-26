@@ -1,30 +1,31 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ProductExcelData } from '@/components/products/ProductType';
+import { TravisMathewType } from '@/components/products/travismethew/TravisMethewType';
 
 const API_URL = '/api/admin/products/travismethew';
 
-export const fetchTravisMathew = createAsyncThunk<ProductExcelData[], void, { rejectValue: string }>(
+export const fetchTravisMathew = createAsyncThunk<TravisMathewType[], void, { rejectValue: string }>(
   'travisMathew/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
       const response = await fetch(API_URL);
       if (!response.ok) throw new Error('Failed to fetch TravisMathew products');
       const data = await response.json();
-      return data.data as ProductExcelData[];
+      return data.data as TravisMathewType[];
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while fetching TravisMathew products');
     }
   }
 );
 
-export const fetchTravisMathewById = createAsyncThunk<ProductExcelData, string, { rejectValue: string }>(
+export const fetchTravisMathewById = createAsyncThunk<TravisMathewType, string, { rejectValue: string }>(
   'travisMathew/fetchById',
   async (id, { rejectWithValue }) => {
     try {
       const response = await fetch(`${API_URL}/${id}`);
       if (!response.ok) throw new Error('Failed to fetch TravisMathew product');
       const data = await response.json();
-      return data.data as ProductExcelData;
+      return data.data as TravisMathewType;
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while fetching the TravisMathew product');
     }
@@ -32,8 +33,8 @@ export const fetchTravisMathewById = createAsyncThunk<ProductExcelData, string, 
 );
 
 export const createTravisMathew = createAsyncThunk<
-  ProductExcelData | ProductExcelData[],
-  ProductExcelData | ProductExcelData[],
+  TravisMathewType | TravisMathewType[],
+  TravisMathewType | TravisMathewType[],
   { rejectValue: string }
 >(
   'travisMathew/create',
@@ -46,7 +47,7 @@ export const createTravisMathew = createAsyncThunk<
       });
       if (!response.ok) throw new Error('Failed to create TravisMathew product(s)');
       const data = await response.json();
-      return data.data as ProductExcelData | ProductExcelData[];
+      return data as ProductExcelData | ProductExcelData[];
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while creating TravisMathew product(s)');
     }

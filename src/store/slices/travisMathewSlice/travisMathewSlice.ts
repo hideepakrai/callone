@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ProductExcelData } from '@/components/products/ProductType';
 import { createTravisMathew, deleteTravisMathew, fetchTravisMathew, fetchTravisMathewById, updateTravisMathew } from './travisMathewThunks';
+import { TravisMathewType } from '@/components/products/travismethew/TravisMethewType';
 
 export interface TravisMathewState {
-  travismathew: ProductExcelData[];
-  selectedTravisMathew: ProductExcelData[];
-  currentTravisMathew: ProductExcelData | null;
+  travismathew: TravisMathewType[];
+  selectedTravisMathew: TravisMathewType[];
+  currentTravisMathew: TravisMathewType | null;
   isFetchedTravismathew: boolean;
   error: string | null;
 }

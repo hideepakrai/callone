@@ -26,9 +26,18 @@ function toNumber(value: unknown): number | undefined {
     return Number.isNaN(numeric) ? undefined : numeric;
 }
 
+function normalizeColumnAliases(item: any) {
+    return {
+        ...item,
+        style_code: item.style_code ?? item["style_code Code"] ?? "",
+    };
+}
+
 function normalizeItem(item: any) {
-    const brandId = toText(item.brandId || item.brand);
-    const attributeSetId = toText(item.attributeSetId);
+    const normalizedItem = normalizeColumnAliases(item);
+    const brandId = toText(normalizedItem.brandId || normalizedItem.brand);
+    const attributeSetId = toText(normalizedItem.attributeSetId);
+    const sku = toText(normalizedItem.sku);
 
     if (!brandId || !mongoose.isValidObjectId(brandId)) {
         return { error: "Invalid or missing brandId" };
@@ -36,20 +45,31 @@ function normalizeItem(item: any) {
     if (!attributeSetId || !mongoose.isValidObjectId(attributeSetId)) {
         return { error: "Invalid or missing attributeSetId" };
     }
+    if (!sku) {
+        return { error: "Missing sku" };
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { brandId: _b, attributeSetId: _a, createdAt: _c, ...rest } = item;
+    const {
+        brandId: _b,
+        brand: _brand,
+        attributeSetId: _a,
+        createdAt: _c,
+        updatedAt: _u,
+        ["style_code Code"]: _legacyStyleCode,
+        ...rest
+    } = normalizedItem;
 
     return {
         product: {
             ...rest,
             brandId: new mongoose.Types.ObjectId(brandId),
-            attributeSetId: new mongoose.Types.ObjectId(attributeSetId),
+            attributeSetId,
             // numeric coercions
-            stock_90: toNumber(item.stock_90) ?? item.stock_90,
-            stock_88: toNumber(item.stock_88) ?? item.stock_88,
-            gst: toNumber(item.gst) ?? item.gst,
-            mrp: toNumber(item.mrp) ?? item.mrp,
+            stock_90: toNumber(normalizedItem.stock_90) ?? normalizedItem.stock_90,
+            stock_88: toNumber(normalizedItem.stock_88) ?? normalizedItem.stock_88,
+            gst: toNumber(normalizedItem.gst) ?? normalizedItem.gst,
+            mrp: toNumber(normalizedItem.mrp) ?? normalizedItem.mrp,
             updatedAt: new Date(),
         },
     };
@@ -67,7 +87,7 @@ export async function GET(request: Request) {
         }
 
         await dbConnect();
-        const collection = mongoose.connection.db!.collection("products");
+        const collection = mongoose.connection.db!.collection("travismethew");
 
         const { searchParams } = new URL(request.url);
         const query: Record<string, unknown> = {};
@@ -119,7 +139,7 @@ export async function POST(request: Request) {
         }
 
         await dbConnect();
-        const collection = mongoose.connection.db!.collection("products");
+        const collection = mongoose.connection.db!.collection("travismethew");
         const body = await request.json();
 
         const rows: any[] = Array.isArray(body) ? body : [body];
@@ -207,7 +227,7 @@ export async function PUT(request: Request) {
         }
 
         await dbConnect();
-        const collection = mongoose.connection.db!.collection("products");
+        const collection = mongoose.connection.db!.collection("travismethew");
         const body = await request.json();
         const rows: any[] = Array.isArray(body) ? body : [body];
 
@@ -215,19 +235,17 @@ export async function PUT(request: Request) {
         let updatedCount = 0;
 
         for (let i = 0; i < rows.length; i++) {
-            const item = rows[i];
-            const sku = toText(item.sku);
-            if (!sku) {
-                issues.push({ rowIndex: i, sku: "", reason: "Missing sku — required for update" });
+            const normalized = normalizeItem(rows[i]);
+            if ("error" in normalized) {
+                issues.push({ rowIndex: i, sku: toText(rows[i].sku), reason: normalized.error! });
                 continue;
             }
 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { sku: _s, _id, createdAt, ...fields } = item;
+            const sku = toText(normalized.product.sku);
             try {
                 const result = await collection.updateOne(
                     { sku },
-                    { $set: { ...fields, updatedAt: new Date() } }
+                    { $set: { ...normalized.product, updatedAt: new Date() } }
                 );
                 if (result.matchedCount === 0) {
                     issues.push({ rowIndex: i, sku, reason: "No product found with this sku" });
@@ -269,7 +287,7 @@ export async function DELETE(request: Request) {
         }
 
         await dbConnect();
-        const collection = mongoose.connection.db!.collection("products");
+        const collection = mongoose.connection.db!.collection("travismethew");
         const body = await request.json();
 
         let skus: string[] = [];
