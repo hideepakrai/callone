@@ -417,7 +417,7 @@ export function AdminShell({children, user}: AdminShellProps) {
         ) : null}
       </AnimatePresence>
 
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#111111]/92 text-white backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#111] text-white backdrop-blur-xl">
         <div className="mx-auto flex h-[74px] max-w-[1600px] items-center gap-3 px-4 sm:px-5">
           <div className="flex items-center gap-3">
             <button
@@ -919,63 +919,6 @@ export function AdminShell({children, user}: AdminShellProps) {
               shellWidthClass
             )}
           >
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`${activeHeroSlide.id}-content`}
-                initial={{opacity: 0, y: 10}}
-                animate={{opacity: 1, y: 0}}
-                exit={{opacity: 0, y: -6}}
-                transition={{duration: 0.35, ease: "easeOut"}}
-                className="max-w-[560px] rounded-[28px] border border-white/12 bg-black/26 p-5 backdrop-blur-md"
-              >
-                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/68">
-                  {activeHeroSlide.eyebrow}
-                </p>
-                <h1 className="mt-3 text-[2rem] font-semibold tracking-tight text-white">
-                  {activeHeroSlide.title}
-                </h1>
-                <p className="mt-3 text-sm leading-6 text-white/72">
-                  {activeHeroSlide.description}
-                </p>
-                <div className="mt-4 flex items-center gap-2">
-                  {heroSlides.map((slide, index) => (
-                    <button
-                      key={slide.id}
-                      onClick={() => setHeroSlideIndex(index)}
-                      className={clsx(
-                        "h-2 rounded-full transition-all",
-                        heroSlideIndex === index ? "w-8 bg-white" : "w-2 bg-white/38"
-                      )}
-                      aria-label={`Show hero slide ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            {pageMeta.actions.length ? (
-              <motion.div
-                initial={{opacity: 0, y: 10}}
-                animate={{opacity: 1, y: 0}}
-                transition={{duration: 0.35, ease: "easeOut", delay: 0.05}}
-                className="hidden max-w-[520px] flex-wrap items-end justify-end gap-3 self-end pb-1 lg:flex"
-              >
-                {pageMeta.actions.map((action) => (
-                  <Link
-                    key={`${pathname}-${action.label}-${action.href}`}
-                    href={action.href}
-                    className={clsx(
-                      "inline-flex min-h-11 items-center justify-center rounded-[20px] border px-5 py-3 text-sm font-semibold backdrop-blur-md transition",
-                      action.tone === "primary"
-                        ? "border-primary/35 bg-primary text-white shadow-[0_10px_32px_rgba(59,130,246,0.28)] hover:bg-primary/90"
-                        : "border-white/14 bg-black/28 text-white/86 hover:border-white/22 hover:bg-black/40"
-                    )}
-                  >
-                    {action.label}
-                  </Link>
-                ))}
-              </motion.div>
-            ) : null}
           </div>
         </div>
 
@@ -986,34 +929,40 @@ export function AdminShell({children, user}: AdminShellProps) {
             transition={{duration: 0.35, ease: "easeOut"}}
             className={clsx("mx-auto", shellWidthClass)}
           >
-            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[22px] border border-border/60 bg-[color:var(--surface)]/94 px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.12)] backdrop-blur-xl">
-              {breadcrumbs.map((item, index) => (
-                <React.Fragment key={`${item.label}-${index}`}>
-                  {index > 0 ? <ChevronRight size={14} className="text-foreground/32" /> : null}
-                  {item.href ? (
-                    <Link
-                      href={item.href}
-                      className="text-sm font-medium text-foreground/56 transition hover:text-foreground"
-                    >
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <span className="text-sm font-semibold text-foreground">{item.label}</span>
-                  )}
-                </React.Fragment>
-              ))}
+            <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl bg-white px-5 py-4 shadow-sm dark:bg-[#1A1A1A]">
+              <h1 className="text-sm font-bold uppercase tracking-wider text-foreground">
+                {pageMeta.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                {breadcrumbs.map((item, index) => (
+                  <React.Fragment key={`${item.label}-${index}`}>
+                    {index > 0 ? <span className="text-foreground/40">/</span> : null}
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="font-medium text-foreground/56 transition hover:text-foreground"
+                      >
+                        {item.label === "Dashboard" ? "Home" : item.label}
+                      </Link>
+                    ) : (
+                      <span className="font-medium text-foreground">{item.label}</span>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
             </div>
+
             {pageMeta.actions.length ? (
-              <div className="mb-4 flex flex-wrap gap-2 lg:hidden">
+              <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
                 {pageMeta.actions.map((action) => (
                   <Link
-                    key={`${pathname}-mobile-${action.label}-${action.href}`}
+                    key={`${pathname}-action-${action.label}-${action.href}`}
                     href={action.href}
                     className={clsx(
-                      "inline-flex min-h-11 items-center justify-center rounded-[18px] border px-4 py-2.5 text-sm font-semibold transition",
+                      "inline-flex min-h-10 items-center justify-center rounded-xl border px-5 py-2 text-sm font-semibold transition",
                       action.tone === "primary"
-                        ? "border-primary/35 bg-primary text-white hover:bg-primary/90"
-                        : "border-border/70 bg-[color:var(--surface)] text-foreground/78 hover:text-foreground"
+                        ? "border-primary bg-primary text-white hover:bg-primary/90"
+                        : "border-border bg-background text-foreground hover:bg-muted"
                     )}
                   >
                     {action.label}

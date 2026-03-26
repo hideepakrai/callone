@@ -29,14 +29,6 @@ export default async function AdminDashboardPage() {
               Follow order movement, product readiness, available stock, and team activity from one clear starting point.
             </p>
           </div>
-
-          <Link
-            href="/admin/analytics"
-            className="inline-flex items-center gap-2 rounded-2xl border border-border/70 bg-background px-4 py-3 text-sm font-semibold text-foreground/76"
-          >
-            Open analytics
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
 
         <div className="grid gap-4 px-4 py-4 md:grid-cols-2 xl:grid-cols-5">

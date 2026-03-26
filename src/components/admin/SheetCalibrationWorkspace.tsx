@@ -571,7 +571,7 @@ export function SheetCalibrationWorkspace({
       </section>
 
       {activeDataset && brandSummary.length ? (
-        <section className="premium-card overflow-hidden rounded-[28px]">
+        <section className="premium-card overflow-clip rounded-[28px]">
           <div className="flex items-center justify-between gap-3 border-b border-border/60 px-4 py-3">
             <div>
               <h3 className="text-base font-semibold text-foreground">Brand relation board</h3>
@@ -580,7 +580,7 @@ export function SheetCalibrationWorkspace({
               </p>
             </div>
           </div>
-          <div className="overflow-x-auto">
+          <div className="w-full">
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="bg-[#111111] text-white">
@@ -607,7 +607,7 @@ export function SheetCalibrationWorkspace({
         </section>
       ) : null}
 
-      <section className="premium-card overflow-hidden rounded-[28px]">
+      <section className="premium-card overflow-clip rounded-[28px]">
         <div className="space-y-4 border-b border-border/60 px-4 py-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -729,7 +729,7 @@ export function SheetCalibrationWorkspace({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="w-full">
           <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
             <thead>
               <tr className="bg-[#111111] text-white">
@@ -864,11 +864,11 @@ function StickyHeading({
 }) {
   return (
     <th
-      className={className}
+      className={`bg-[#111] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)] ${className || ""}`}
       style={{
         position: "sticky",
         top: "calc(var(--admin-header-height) + 12px)",
-        zIndex: 12,
+        zIndex: 20,
       }}
     >
       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/82">
@@ -876,4 +876,4 @@ function StickyHeading({
       </div>
     </th>
   );
-}
+} 

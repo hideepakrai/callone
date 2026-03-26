@@ -526,7 +526,7 @@ export function ProductCatalogWorkspace({
         </div>
       </section>
 
-      <section className="premium-card overflow-hidden rounded-[28px]">
+      <section className="premium-card overflow-clip rounded-[28px]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3">
           <div>
             <h3 className="text-base font-semibold text-foreground">Catalog grid</h3>
@@ -542,7 +542,7 @@ export function ProductCatalogWorkspace({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="w-full">
           <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
             <thead>
               <tr className="bg-[#111111] text-white">
@@ -849,11 +849,11 @@ function StickyHeading({
 }) {
   return (
     <th
-      className={className}
+      className={`bg-[#111] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)] ${className || ""}`}
       style={{
         position: "sticky",
         top: "calc(var(--admin-header-height) + 12px)",
-        zIndex: 12,
+        zIndex: 20,
       }}
     >
       <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/82">
@@ -861,4 +861,4 @@ function StickyHeading({
       </div>
     </th>
   );
-}
+} 
