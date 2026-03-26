@@ -1,5 +1,4 @@
-import Link from "next/link";
-import {ArrowRight} from "lucide-react";
+
 import {BrandCatalogCard, BreakdownCard, InsightMetricCard, LeaderboardCard, TrendCard} from "@/components/admin/analytics/InsightBlocks";
 import {buildDashboardInsights} from "@/lib/admin/insights";
 import {loadInsightsData} from "@/lib/admin/load-insights-data";

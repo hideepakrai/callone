@@ -9,7 +9,6 @@ import clsx from "clsx";
 import {AnimatePresence, motion} from "framer-motion";
 import {
   ChevronDown,
-  ChevronRight,
   Grid2x2,
   LogOut,
   Menu,
@@ -28,7 +27,7 @@ import {
   ADMIN_ROUTE_ITEMS,
   HERO_BANNERS,
 } from "@/lib/admin/command-center";
-import {getAdminBreadcrumbs, getAdminPageMeta} from "@/lib/admin/page-chrome";
+import {getAdminPageMeta} from "@/lib/admin/page-chrome";
 import {getAvailableViewRoles, VIEW_ROLE_LABELS} from "@/lib/auth/view-role";
 import {useTheme} from "../ThemeProvider";
 import {MegaSearch} from "../ui/MegaSearch";
@@ -308,7 +307,6 @@ export function AdminShell({children, user}: AdminShellProps) {
     visibleNavItems.find((item) => matchesPath(pathname, item.href)) ??
     visibleNavItems[0];
   const pageMeta = useMemo(() => getAdminPageMeta(pathname), [pathname]);
-  const breadcrumbs = useMemo(() => getAdminBreadcrumbs(pathname), [pathname]);
 
   const heroSlides = useMemo(
     () => buildHeroSlides(pathname, activeItem, viewRole, pageMeta),
@@ -932,47 +930,7 @@ export function AdminShell({children, user}: AdminShellProps) {
             transition={{duration: 0.35, ease: "easeOut"}}
             className={clsx("mx-auto", shellWidthClass)}
           >
-            <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xl bg-white px-5 py-4 shadow-sm dark:bg-[#1A1A1A]">
-              <h1 className="text-sm font-bold uppercase tracking-wider text-foreground">
-                {pageMeta.title}
-              </h1>
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                {breadcrumbs.map((item, index) => (
-                  <React.Fragment key={`${item.label}-${index}`}>
-                    {index > 0 ? <span className="text-foreground/40">/</span> : null}
-                    {item.href ? (
-                      <Link
-                        href={item.href}
-                        className="font-medium text-foreground/56 transition hover:text-foreground"
-                      >
-                        {item.label === "Dashboard" ? "Home" : item.label}
-                      </Link>
-                    ) : (
-                      <span className="font-medium text-foreground">{item.label}</span>
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-            </div>
 
-            {pageMeta.actions.length ? (
-              <div className="mb-4 flex flex-wrap items-center justify-end gap-3">
-                {pageMeta.actions.map((action) => (
-                  <Link
-                    key={`${pathname}-action-${action.label}-${action.href}`}
-                    href={action.href}
-                    className={clsx(
-                      "inline-flex min-h-10 items-center justify-center rounded-xl border px-5 py-2 text-sm font-semibold transition",
-                      action.tone === "primary"
-                        ? "border-primary bg-primary text-white hover:bg-primary/90"
-                        : "border-border bg-background text-foreground hover:bg-muted"
-                    )}
-                  >
-                    {action.label}
-                  </Link>
-                ))}
-              </div>
-            ) : null}
             {children}
           </motion.div>
         </main>

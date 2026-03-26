@@ -58,8 +58,8 @@ function statusClasses(status: string) {
 export function ProductCatalogWorkspace({
   products,
   title = "Products",
-  description = "Instant search, layered attribute filters, selectable rows, compact pagination, and stock-aware sorting tuned for dense admin workflows.",
-  badgeLabel = "Brand-aware catalog explorer",
+  description = "Manage your product catalog, update pricing, verify stock levels, and organize variants across all brands.",
+  badgeLabel = "Catalog Management",
 }: ProductCatalogWorkspaceProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -418,12 +418,7 @@ export function ProductCatalogWorkspace({
             </label>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/52">
-            <span className="rounded-full border border-border/70 bg-background px-3 py-1 font-semibold uppercase tracking-[0.14em] text-foreground/58">
-              Quick guidance
-            </span>
-            <span>Try `CG-PRO-SEED`, `Travis`, `Polos`, `Color Blue`, or `WH90` in imports calibration.</span>
-          </div>
+
 
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             <SummaryTile label="Visible products" value={String(sortedProducts.length)} tone="neutral" />
@@ -468,7 +463,7 @@ export function ProductCatalogWorkspace({
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">Attribute filters</h3>
                     <p className="text-xs text-foreground/52">
-                      Multiple values inside one attribute work as OR. Different attributes stack logically.
+                      Filter products by specific attributes like size, color, or material.
                     </p>
                   </div>
                   <label className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-[color:var(--surface)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/64">
@@ -529,9 +524,9 @@ export function ProductCatalogWorkspace({
       <section className="premium-card overflow-clip rounded-[28px]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3">
           <div>
-            <h3 className="text-base font-semibold text-foreground">Catalog grid</h3>
+            <h3 className="text-base font-semibold text-foreground">Product List</h3>
             <p className="text-sm text-foreground/56">
-              Sticky table header aligns below the admin header. Selection is scoped to the visible page.
+              Select products to perform bulk actions or export data.
             </p>
           </div>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/48">
@@ -542,7 +537,7 @@ export function ProductCatalogWorkspace({
           </div>
         </div>
 
-        <div className="w-full">
+        <div className="w-full max-h-[calc(100vh-250px)] overflow-auto rounded-b-[24px]">
           <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
             <thead>
               <tr className="bg-[#111111] text-white">
@@ -695,9 +690,9 @@ export function ProductCatalogWorkspace({
                       <div className="flex h-14 w-14 items-center justify-center rounded-[22px] bg-[#111111] text-white">
                         <Package2 className="h-5 w-5" />
                       </div>
-                      <h3 className="mt-4 text-base font-semibold text-foreground">No products match this filter state</h3>
+                      <h3 className="mt-4 text-base font-semibold text-foreground">No products found</h3>
                       <p className="mt-2 text-sm text-foreground/56">
-                        Adjust the search term, remove some attribute chips, or switch off the available-only constraint.
+                        Try adjusting your search terms or clearing active filters.
                       </p>
                     </div>
                   </td>
@@ -744,7 +739,7 @@ export function ProductCatalogWorkspace({
               {selectedIds.length} selected
             </span>
             <p className="text-sm text-white/72">
-              Bulk-ready footer for exports and future brand/stock actions.
+              Select an action to apply to the checked products.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -852,7 +847,7 @@ function StickyHeading({
       className={`bg-[#111] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)] ${className || ""}`}
       style={{
         position: "sticky",
-        top: "calc(var(--admin-header-height) + 12px)",
+        top: 0,
         zIndex: 20,
       }}
     >

@@ -99,7 +99,7 @@ export function SheetCalibrationWorkspace({
   const [datasets, setDatasets] = useState(initialDatasets);
   const [datasetName, setDatasetName] = useState("Brand Calibration Intake");
   const [datasetDescription, setDatasetDescription] = useState(
-    "Brand-aware calibration upload used to map incoming sheet rows against live brands, products, variants, and warehouses."
+    "Upload sheets to map incoming rows against live brands, products, variants, and warehouses."
   );
   const [headers, setHeaders] = useState<string[]>([]);
   const [draftRows, setDraftRows] = useState<Record<string, unknown>[]>([]);
@@ -412,7 +412,7 @@ export function SheetCalibrationWorkspace({
               </span>
             </div>
             <p className="max-w-4xl text-sm text-foreground/62">
-              Load the default sheet, upload a CSV, calibrate it against live master data, and reopen saved datasets without leaving the admin shell.
+              Import and calibrate data directly into your database.
             </p>
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -580,7 +580,7 @@ export function SheetCalibrationWorkspace({
               </p>
             </div>
           </div>
-          <div className="w-full">
+          <div className="w-full max-h-[400px] overflow-auto rounded-b-[24px]">
             <table className="min-w-full text-left text-sm">
               <thead>
                 <tr className="bg-[#111111] text-white">
@@ -615,7 +615,7 @@ export function SheetCalibrationWorkspace({
                 {activeDataset ? activeDataset.name : draftRows.length ? "Draft preview" : "Preview table"}
               </h3>
               <p className="text-sm text-foreground/56">
-                Dense, horizontally aligned preview with quick search, filter chips, and page controls.
+                Preview uploaded rows and identify mapping issues.
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -729,7 +729,7 @@ export function SheetCalibrationWorkspace({
           </div>
         </div>
 
-        <div className="w-full">
+        <div className="w-full max-h-[calc(100vh-250px)] overflow-auto rounded-b-[24px]">
           <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
             <thead>
               <tr className="bg-[#111111] text-white">
@@ -867,7 +867,7 @@ function StickyHeading({
       className={`bg-[#111] text-white shadow-[0_1px_0_rgba(255,255,255,0.08)] ${className || ""}`}
       style={{
         position: "sticky",
-        top: "calc(var(--admin-header-height) + 12px)",
+        top: 0,
         zIndex: 20,
       }}
     >
