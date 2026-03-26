@@ -60,8 +60,15 @@ export function ProductCatalogWorkspace({
   title = "Products",
   description = "Manage your product catalog, update pricing, verify stock levels, and organize variants across all brands.",
   badgeLabel = "Catalog Management",
+  workspaceMode = "managed",
+  importHref = "/admin/imports",
+  importLabel = "Open imports",
+  newProductHref = "/admin/products/new",
+  newProductLabel = "New product",
+  sourceNotice = "",
 }: ProductCatalogWorkspaceProps) {
   const router = useRouter();
+  const isSourceReadonly = workspaceMode === "source_readonly";
   const [query, setQuery] = useState("");
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
   const [availableOnly, setAvailableOnly] = useState(false);
@@ -260,6 +267,10 @@ export function ProductCatalogWorkspace({
   ];
 
   async function handleDelete(productId: string) {
+    if (isSourceReadonly) {
+      return;
+    }
+
     const product = products.find((item) => item.id === productId);
     if (!product) {
       return;
@@ -308,17 +319,22 @@ export function ProductCatalogWorkspace({
 
   const [isOpen,setIsOpen] = useState(false);
    const handleImport = () => {
+    if (isSourceReadonly) {
+      router.push(importHref);
+      return;
+    }
+
     setIsOpen(true);
    }
   return (
     <>
-    {/* get all attributes  */}
-    <GetAllAtributeSet/>
-    {/* get all brands  */}
-    <GetAllBrands/>
-
-    {/* update current brand attribute  */}
-    <UpdateBrandAttribute/>
+    {!isSourceReadonly ? (
+      <>
+        <GetAllAtributeSet/>
+        <GetAllBrands/>
+        <UpdateBrandAttribute/>
+      </>
+    ) : null}
 
     <div className="space-y-4">
       <section className="premium-card overflow-hidden rounded-[28px]">
@@ -339,29 +355,45 @@ export function ProductCatalogWorkspace({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {/* <ImportFile /> */}
-                  <button
-              onClick={handleImport}
-              className="rounded-2xl border border-border/70 bg-background px-4 py-2.5 text-sm font-semibold text-foreground/76"
-            >
-              Import file
-            </button>
+            {isSourceReadonly ? (
+              <Link
+                href={importHref}
+                className="rounded-2xl border border-border/70 bg-background px-4 py-2.5 text-sm font-semibold text-foreground/76"
+              >
+                {importLabel}
+              </Link>
+            ) : (
+              <button
+                onClick={handleImport}
+                className="rounded-2xl border border-border/70 bg-background px-4 py-2.5 text-sm font-semibold text-foreground/76"
+              >
+                Import file
+              </button>
+            )}
             <button
               onClick={exportVisible}
               className="rounded-2xl border border-border/70 bg-background px-4 py-2.5 text-sm font-semibold text-foreground/76"
             >
               Export visible
             </button>
-            <Link
-              href="/admin/products/new"
-              className="rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(47,127,244,0.22)]"
-            >
-              New product
-            </Link>
+            {newProductHref ? (
+              <Link
+                href={newProductHref}
+                className="rounded-2xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-[0_16px_32px_rgba(47,127,244,0.22)]"
+              >
+                {newProductLabel}
+              </Link>
+            ) : null}
           </div>
         </div>
 
         <div className="space-y-4 px-4 py-4">
+          {isSourceReadonly && sourceNotice ? (
+            <div className="rounded-[22px] border border-primary/20 bg-primary/8 px-4 py-4 text-sm text-foreground/72">
+              {sourceNotice}
+            </div>
+          ) : null}
+
           <div className="grid gap-3 xl:grid-cols-[minmax(0,1.3fr)_auto_auto_auto]">
             <label className="premium-search flex items-center gap-3 rounded-[22px] px-4 py-3">
               <Search className="h-4 w-4 text-foreground/45" />
@@ -662,22 +694,29 @@ export function ProductCatalogWorkspace({
                         </span>
                       </td>
                       <td className="border-b border-border/60 px-4 py-4 align-top">
-                        <div className="flex flex-col items-start gap-2">
-                          <Link
-                            href={`/admin/products/${product.id}/edit`}
-                            className="text-sm font-semibold text-primary"
-                          >
-                            Edit
-                          </Link>
-                          <button
-                            onClick={() => handleDelete(product.id)}
-                            disabled={deletingId === product.id}
-                            className="inline-flex items-center gap-2 text-sm font-semibold text-danger disabled:opacity-60"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            {deletingId === product.id ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
+                        {isSourceReadonly ? (
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-foreground/72">Source-managed</p>
+                            <p className="text-xs text-foreground/48">Use the import workflow for catalog and stock updates.</p>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-start gap-2">
+                            <Link
+                              href={`/admin/products/${product.id}/edit`}
+                              className="text-sm font-semibold text-primary"
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              onClick={() => handleDelete(product.id)}
+                              disabled={deletingId === product.id}
+                              className="inline-flex items-center gap-2 text-sm font-semibold text-danger disabled:opacity-60"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              {deletingId === product.id ? "Deleting..." : "Delete"}
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -759,8 +798,9 @@ export function ProductCatalogWorkspace({
       ) : null}
     </div>
 
-    {/* import file  */}
-    <ImportFile isOpen={isOpen} onClose={() => setIsOpen(false)} />
+    {!isSourceReadonly ? (
+      <ImportFile isOpen={isOpen} onClose={() => setIsOpen(false)} />
+    ) : null}
     </>
   );
 }

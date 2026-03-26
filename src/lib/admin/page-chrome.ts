@@ -97,7 +97,7 @@ export function getAdminPageMeta(pathname: string): AdminPageMeta {
         "Filter hard, sort fast, and manage stock-ready variants with shared media and warehouse-aware availability.",
       actions: [
         {label: "Export CSV", href: "/api/admin/export/products", tone: "secondary"},
-        {label: "New product", href: "/admin/products/new", tone: "primary"},
+        {label: "Open imports", href: "/admin/imports", tone: "primary"},
       ],
     };
   }

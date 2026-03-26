@@ -40,6 +40,12 @@ export type ProductCatalogWorkspaceProps = {
   title?: string;
   description?: string;
   badgeLabel?: string;
+  workspaceMode?: "managed" | "source_readonly";
+  importHref?: string;
+  importLabel?: string;
+  newProductHref?: string | null;
+  newProductLabel?: string;
+  sourceNotice?: string;
 };
 
 export interface ProductExcelData {
