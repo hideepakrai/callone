@@ -17,8 +17,9 @@ if (!globalCache.__mongoose__) {
 
 export default async function dbConnect() {
   const MONGODB_URI = process.env.MONGODB_URI;
-   console.log("MONGODB_URI",MONGODB_URI)
+  
   if (!MONGODB_URI) {
+    console.error("DB_CONNECT_ERROR: MONGODB_URI is not defined.");
     throw new Error("Missing MONGODB_URI. Define it in .env.local before running CallawayOne.");
   }
 
@@ -27,12 +28,20 @@ export default async function dbConnect() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI, {bufferCommands: false});
+    console.log("DB_CONNECT_INFO: Starting new connection to MongoDB...");
+    const opts = {
+      bufferCommands: false,
+    };
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log("DB_CONNECT_SUCCESS: Established connection to MongoDB.");
+      return mongoose;
+    });
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (error) {
+  } catch (error: any) {
+    console.error("DB_CONNECT_ERROR: Failed to connect to MongoDB:", error.message || error);
     cached.promise = null;
     throw error;
   }
