@@ -562,16 +562,16 @@ NEXTAUTH_MONGODB_URI=your-mongodb-uri
 NEXTAUTH_SECRET=your-nextauth-secret
 CALLONE_BOOTSTRAP_ADMIN_EMAIL=admin@callone.local
 CALLONE_BOOTSTRAP_ADMIN_PASSWORD=CalloneAdmin@123
-CALLONE_RUNTIME_BOOTSTRAP=false
+MONGODB_AUTH_SOURCE=admin
 ```
 
 Important:
 
 - `NEXTAUTH_MONGODB_URI` is required at runtime.
 - Build is safe without DB only because admin/login routes are force-dynamic.
-- The heavier workspace seed is disabled in production by default so a slow or unreachable MongoDB does not surface as a Hostinger 503.
-- The seeded login accounts can still be refreshed on demand through the credentials flow, so the bootstrap admin password follows `CALLONE_BOOTSTRAP_ADMIN_PASSWORD`.
-- If you need the full demo dataset in production, run `npm run seed` against the target database once or set `CALLONE_RUNTIME_BOOTSTRAP=true` temporarily.
+- The login bootstrap only refreshes the seeded auth accounts, so the bootstrap admin password follows `CALLONE_BOOTSTRAP_ADMIN_PASSWORD`.
+- If you need the full demo dataset in production, run `npm run seed` against the target database once.
+- If your MongoDB user was created in Atlas, `MONGODB_AUTH_SOURCE=admin` is the safest setting.
 
 ## Scripts
 
