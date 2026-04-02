@@ -78,10 +78,10 @@ function normalizeItem(item: any) {
 // ---------------------------------------------------------------------------
 export async function GET(request: Request) {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        // const session = await getServerSession(authOptions);
+        // if (!session?.user) {
+        //     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        // }
 
         await dbConnect();
         const collection = mongoose.connection.db!.collection("product_travis");
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
         }
 
         await dbConnect();
-        const collection = mongoose.connection.db!.collection("travismethew");
+        const collection = mongoose.connection.db!.collection("product_travis");
         const body = await request.json();
 
         const rows: any[] = Array.isArray(body) ? body : [body];
@@ -224,7 +224,7 @@ export async function PUT(request: Request) {
         }
 
         await dbConnect();
-        const collection = mongoose.connection.db!.collection("travismethew");
+        const collection = mongoose.connection.db!.collection("product_travis");
         const body = await request.json();
         const rows: any[] = Array.isArray(body) ? body : [body];
 
@@ -284,7 +284,7 @@ export async function DELETE(request: Request) {
         }
 
         await dbConnect();
-        const collection = mongoose.connection.db!.collection("travismethew");
+        const collection = mongoose.connection.db!.collection("product_travis");
         const body = await request.json();
 
         let skus: string[] = [];
