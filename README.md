@@ -560,6 +560,7 @@ Create `.env.local`:
 ```bash
 MONGODB_URI=your-mongodb-uri
 NEXTAUTH_SECRET=your-nextauth-secret
+NEXTAUTH_URL=https://your-domain.com
 CALLONE_BOOTSTRAP_ADMIN_EMAIL=admin@callone.local
 CALLONE_BOOTSTRAP_ADMIN_PASSWORD=CalloneAdmin@123
 MONGODB_AUTH_SOURCE=admin
@@ -568,6 +569,7 @@ MONGODB_AUTH_SOURCE=admin
 Important:
 
 - `MONGODB_URI` is required at runtime.
+- `NEXTAUTH_URL` must be the full https URL for the deployed site.
 - Build is safe without DB only because admin/login routes are force-dynamic.
 - The login bootstrap only refreshes the seeded auth accounts, so the bootstrap admin password follows `CALLONE_BOOTSTRAP_ADMIN_PASSWORD`.
 - If you need the full demo dataset in production, run `npm run seed` against the target database once.
