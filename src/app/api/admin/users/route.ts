@@ -3,6 +3,8 @@ import { getUsersByRole } from "@/lib/actions/users";
 import { User } from "@/lib/db/models/User";
 import dbConnect from "@/lib/db/connection";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

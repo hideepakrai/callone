@@ -22,6 +22,7 @@ export interface CartItem {
 
 
 interface CartState {
+  curtentCartId:string|null;
   selectedRetailer: UserInterface | null;
   selectedManager: UserInterface | null;
   selectedSalesRep: UserInterface | null;
@@ -31,6 +32,7 @@ interface CartState {
 }
 
 const initialState: CartState = {
+  curtentCartId:null, 
   selectedRetailer: null,
   selectedManager: null,
   selectedSalesRep: null,

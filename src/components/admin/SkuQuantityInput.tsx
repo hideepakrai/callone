@@ -22,7 +22,8 @@ export function SkuQuantityInput({
 }: SkuQuantityInputProps) {
   const isError = value > maxStock || value < 0;
   const [inputvalue, setInputValue] = useState(value);
-  
+
+  const { currentBrand } = useSelector((state: RootState) => state.brand);
   useEffect(() => {
     setInputValue(value);
   }, [value]);
@@ -33,11 +34,9 @@ export function SkuQuantityInput({
     }
   }, [maxStock]);
 
-  const dispatch= useDispatch<AppDispatch>()
+  const dispatch = useDispatch<AppDispatch>()
 
 
-  const {items}=useSelector((state:RootState)=>state.cart)
-  const { currentBrand } = useSelector((state: RootState) => state.brand);
   const handleManualChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseInt(e.target.value) || 0;
     handleChange(val);
@@ -64,11 +63,14 @@ export function SkuQuantityInput({
     dispatch(addToCart(data))
   }
 
+
+  //add the project into the DB
+
   return (
     <div
       className={`inline-flex items-stretch overflow-hidden rounded-xl border transition-all duration-200 ${isError
-          ? "border-red-500 bg-red-500/5 ring-1 ring-red-500/20"
-          : "border-border/60 bg-background"
+        ? "border-red-500 bg-red-500/5 ring-1 ring-red-500/20"
+        : "border-border/60 bg-background"
         }`}
       style={{ height: "36px" }}
     >

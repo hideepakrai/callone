@@ -1,10 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { CartModel } from './OrderType';
+import { OrderModel } from './OrderType';
 
 const API_URL = '/api/admin/orders';
 
 export const fetchOrders = createAsyncThunk<
-  CartModel[],
+  OrderModel[],
   void,
   { rejectValue: string }
 >(
@@ -16,7 +16,7 @@ export const fetchOrders = createAsyncThunk<
         throw new Error('Failed to fetch orders');
       }
       const data = await response.json();
-      return data.data as CartModel[];
+      return data.data as OrderModel[];
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while fetching orders');
     }
@@ -24,7 +24,7 @@ export const fetchOrders = createAsyncThunk<
 );
 
 export const fetchOrderById = createAsyncThunk<
-  CartModel,
+  OrderModel,
   string,
   { rejectValue: string }
 >(
@@ -36,7 +36,7 @@ export const fetchOrderById = createAsyncThunk<
         throw new Error(`Failed to fetch order with ID: ${orderId}`);
       }
       const data = await response.json();
-      return data.data as CartModel;
+      return data.data as OrderModel;
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while fetching the order');
     }
@@ -44,8 +44,8 @@ export const fetchOrderById = createAsyncThunk<
 );
 
 export const createOrder = createAsyncThunk<
-  CartModel,
-  Partial<CartModel>,
+  OrderModel,
+  Partial<OrderModel>,
   { rejectValue: string }
 >(
   'orders/create',
@@ -60,7 +60,7 @@ export const createOrder = createAsyncThunk<
         throw new Error('Failed to create order');
       }
       const data = await response.json();
-      return data.data as CartModel;
+      return data.data as OrderModel;
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while creating the order');
     }
@@ -68,8 +68,8 @@ export const createOrder = createAsyncThunk<
 );
 
 export const updateOrder = createAsyncThunk<
-  CartModel,
-  { id: string; data: Partial<CartModel> },
+  OrderModel,
+  { id: string; data: Partial<OrderModel> },
   { rejectValue: string }
 >(
   'orders/update',
@@ -84,7 +84,7 @@ export const updateOrder = createAsyncThunk<
         throw new Error(`Failed to update order with ID: ${id}`);
       }
       const updatedData = await response.json();
-      return updatedData.data as CartModel;
+      return updatedData.data as OrderModel;
     } catch (error: any) {
       return rejectWithValue(error.message || 'An error occurred while updating the order');
     }

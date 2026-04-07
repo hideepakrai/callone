@@ -8,35 +8,28 @@ export interface NoteModel{
   access?: string;
   type?: string;
   }
-export interface CartModel {
+export interface OrderModel {
   _id?: string,
   id?: number,
-  order_date?: string,
   items?: CartItem[],
+   manager_id?: string | null,
+  retailer_id?: string,
+  salesrep_id?: string,
+    user_id?: string,
   discount_type?: string,
   discount_percent?: number,
-  total_value?: number,
   status?: string,
- manager_id?: number | null,
-  retailer_id?: number,
-  salesrep_id?: number,
-  user_id?: number,
-
-  brand_id?: number;
   created_at?: string;
-
-  note?: NoteModel;
+  note?: NoteModel[];
   totalAmount?: number,
-  discountAmount?: number
-  total_val_pre_discount?: number,
-  discount_amount?: number,
+  discountAmount?: number,
 
   updated_at?: string;
 }
 
 export interface OrderState {
-  allOrders: CartModel[];
-  currentOrder: CartModel | null;
+  allOrders: OrderModel[];
+  currentOrder: OrderModel | null;
   isFetchedOrders: boolean;
   isLoadingOrders: boolean;
   isError: boolean;

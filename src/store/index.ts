@@ -7,7 +7,7 @@ import ogioReducer from './slices/ogioSlice/ogioSlice';
 import hardgoodReducer from './slices/hardgoodSlice/hardgoodSlice';
 import cartReducer from './slices/cart/cartSlice';
 import userReducer from './slices/users/userSlice';
-
+import orderReducer from './slices/order/OrderSlice';
 export const store = configureStore({
   reducer: {
     brand: brandReducer,
@@ -17,7 +17,11 @@ export const store = configureStore({
     hardgoods: hardgoodReducer,
     cart: cartReducer,
     user: userReducer,
+    order: orderReducer,
   },
+  devTools: {
+    name: "CallawayOne Store"
+  }
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -27,7 +27,7 @@ export function ProductTable({
   statusClasses,
 }: ProductTableProps) {
 
-  console.log("visibleRows--->",visibleRows)
+
   return (
     <table className="min-w-full border-separate border-spacing-0 text-left text-sm">
       <thead>
