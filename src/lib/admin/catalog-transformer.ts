@@ -1,8 +1,6 @@
-import mongoose from "mongoose";
 import type {ProductCatalogRecord} from "@/components/products/ProductType";
-import dbConnect from "@/lib/db/connection";
 
-type RawCatalogConfig = {
+export type RawCatalogConfig = {
   sectionSlug: string;
   collectionName: string;
   brand: {
@@ -21,7 +19,7 @@ type RawCatalogConfig = {
   stockFields: string[];
 };
 
-function toNumber(value: unknown) {
+export function toNumber(value: unknown) {
   if (typeof value === "number") {
     return Number.isFinite(value) ? value : 0;
   }
@@ -34,23 +32,23 @@ function toNumber(value: unknown) {
   return 0;
 }
 
-function cleanText(value: unknown) {
+export function cleanText(value: unknown) {
   return String(value ?? "")
     .replace(/_/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function canonicalValue(value: unknown) {
+export function canonicalValue(value: unknown) {
   return cleanText(value).toUpperCase();
 }
 
-function isMeaningfulValue(value: unknown) {
+export function isMeaningfulValue(value: unknown) {
   const canonical = canonicalValue(value);
   return Boolean(canonical && canonical !== "NA" && canonical !== "N/A" && canonical !== "NULL" && canonical !== "0");
 }
 
-function labelCase(value: string) {
+export function labelCase(value: string) {
   if (!value) {
     return "";
   }
@@ -71,7 +69,7 @@ function labelCase(value: string) {
     .join(" ");
 }
 
-function selectDisplayValue(rows: Record<string, unknown>[], field: string) {
+export function selectDisplayValue(rows: Record<string, unknown>[], field: string) {
   const candidates = new Map<string, {display: string; count: number}>();
 
   for (const row of rows) {
@@ -95,7 +93,7 @@ function selectDisplayValue(rows: Record<string, unknown>[], field: string) {
     .at(0)?.display ?? "";
 }
 
-function collectDisplayValues(rows: Record<string, unknown>[], field: string) {
+export function collectDisplayValues(rows: Record<string, unknown>[], field: string) {
   const values = new Map<string, string>();
 
   for (const row of rows) {
@@ -113,7 +111,7 @@ function collectDisplayValues(rows: Record<string, unknown>[], field: string) {
   return Array.from(values.values()).sort((left, right) => left.localeCompare(right));
 }
 
-function selectUpdatedAt(rows: Record<string, unknown>[]) {
+export function selectUpdatedAt(rows: Record<string, unknown>[]) {
   const timestamps = rows
     .map((row) => row.updatedAt ?? row.createdAt)
     .map((value) => new Date(String(value)).getTime())
@@ -122,7 +120,7 @@ function selectUpdatedAt(rows: Record<string, unknown>[]) {
   return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : new Date(0).toISOString();
 }
 
-function buildVariantTitle(
+export function buildVariantTitle(
   row: Record<string, unknown>,
   groups: Array<{key: string; label: string; field: string}>
 ) {
@@ -136,7 +134,7 @@ function buildVariantTitle(
   return parts.join(" / ") || cleanText(row.sku) || "Variant";
 }
 
-function sumAvailableStock(rows: Record<string, unknown>[], stockFields: string[]) {
+export function sumAvailableStock(rows: Record<string, unknown>[], stockFields: string[]) {
   return rows.reduce(
     (total, row) =>
       total +
@@ -145,7 +143,7 @@ function sumAvailableStock(rows: Record<string, unknown>[], stockFields: string[
   );
 }
 
-const RAW_CATALOG_CONFIGS: RawCatalogConfig[] = [
+export const RAW_CATALOG_CONFIGS: RawCatalogConfig[] = [
   {
     sectionSlug: "callaway-softgoods",
     collectionName: "product_softgoods",
@@ -226,14 +224,7 @@ const RAW_CATALOG_CONFIGS: RawCatalogConfig[] = [
   },
 ];
 
-async function loadCollectionRecords(config: RawCatalogConfig): Promise<ProductCatalogRecord[]> {
-  const database = mongoose.connection.db;
-  if (!database) {
-    return [];
-  }
-
-  const rows = (await database.collection(config.collectionName).find({}).toArray()) as Array<Record<string, unknown>>;
-   
+export function transformRawRecords(config: RawCatalogConfig, rows: Record<string, unknown>[]): ProductCatalogRecord[] {
   const groupedRows = new Map<string, Record<string, unknown>[]>();
 
   for (const row of rows) {
@@ -305,31 +296,4 @@ async function loadCollectionRecords(config: RawCatalogConfig): Promise<ProductC
     if (!aHasImage && bHasImage) return 1;
     return 0;
   });
-}
-
-export async function loadRawBrandCatalogRecords(sectionSlug: string) {
-  const config = RAW_CATALOG_CONFIGS.find((item) => item.sectionSlug === sectionSlug);
-  if (!config) {
-    return null;
-  }
-
-  await dbConnect();
-
-  const database = mongoose.connection.db;
-  if (!database) {
-    return null;
-  }
-
-  const collections = await database.listCollections({}, {nameOnly: true}).toArray();
-  const exists = collections.some((collection) => collection.name === config.collectionName);
-
-  if (!exists) {
-    return null;
-  }
-  const products = await loadCollectionRecords(config);
-  return {
-    products,
-    collectionName: config.collectionName,
-    brandLabel: config.brand.name,
-  };
 }
