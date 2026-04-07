@@ -10,6 +10,8 @@ import { PageHeader } from '@/components/admin/PageHeader';
 import Image from 'next/image';
 import clsx from 'clsx';
 import Ordercard from '@/components/order/Ordercard';
+import { ProductImage } from '@/components/admin/ProductImage';
+
 
 const STEPS = [
   { id: 1, label: 'Submit Order' },
@@ -34,12 +36,22 @@ export default function CartPage() {
     if (!isFetchedAllSaleRep) dispatch(fetchUsersByRole('sales_rep'));
   }, [dispatch, isFetchedAllRetailer, isFetchedAllManager, isFetchedAllSaleRep]);
 
-  const subtotal = cart.items.reduce((sum, item) => sum + ((item?.mrp ?? 0) * ((item?.qty88 ?? 0) + (item?.qty90 ?? 0))), 0);
-  const discountAmount = cart.discountType === 'flat'
-    ? cart.discountValue
-    : (subtotal * cart.discountValue) / 100;
+  const summary = cart.items.reduce((acc, item) => {
+    const qty = (item?.qty88 ?? 0) + (item?.qty90 ?? 0);
+    const amount = (item.mrp ?? 0) * qty;
+    const gstRate = item.gst ?? 0;
+    const lessGst = amount / (1 + gstRate / 100);
+    const discountAmount = lessGst * (cart.discountValue / 100);
+    const netBilling = lessGst - discountAmount;
+    const finalBillValue = netBilling * (1 + gstRate / 100);
 
-  const totalNetBill = subtotal - discountAmount;
+    acc.subtotal += amount;
+    acc.totalDiscount += discountAmount; // This is on basic amount
+    acc.finalTotal += finalBillValue;
+    return acc;
+  }, { subtotal: 0, totalDiscount: 0, finalTotal: 0 });
+
+  const { subtotal, totalDiscount, finalTotal } = summary;
 
   // if (!cart.selectedRetailer) {
   //   return (
@@ -242,68 +254,85 @@ export default function CartPage() {
               <th className="px-6 py-4 text-center">Qty</th>
               <th className="px-6 py-4">MRP</th>
               <th className="px-6 py-4">Amount</th>
-              <th className="px-6 py-4">GST</th>
-              <th className="px-6 py-4">Discount</th>
-              <th className="px-6 py-4">Action</th>
+              <th className="px-6 py-4 text-center">GST %</th>
+              <th className="px-6 py-4">Less GST</th>
+              <th className="px-6 py-4 text-center">Disc (%)</th>
+              <th className="px-6 py-4">Disc Amt</th>
+              <th className="px-6 py-4">Net Billings</th>
+              <th className="px-6 py-4">Final Bill Value</th>
+              <th className="px-6 py-4 text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/40">
-            {cart.items.map((item, index) => (
-              <tr key={item.id} className="group hover:bg-foreground/[0.01] transition-colors">
-                <td className="px-6 py-4 text-xs font-bold text-foreground/40">{index + 1}</td>
-                <td className="px-6 py-4">
-                  <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-border/40 bg-foreground/[0.02]">
-                    {/* {item.image ? (
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-[10px] uppercase font-bold opacity-20">IMG</div>
-                    )} */}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-xs font-bold text-foreground/70">{item.brand}</td>
-                <td className="px-6 py-4 text-xs font-black tracking-tight">{item.sku}</td>
-                <td className="px-6 py-4 text-[10px] font-semibold text-foreground/60 max-w-[200px] leading-relaxed">
-                  {item.description??""}
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-center">
-                    <input
-                      type="number"
-                      value={item.qty88}
-                      // onChange={(e) => dispatch(updateCartItemQty({ id: item.id, qty88: parseInt(e.target.value) || 0 }))}
-                      className="w-14 rounded-lg border border-border/60 bg-foreground/5 py-1 text-center text-xs font-bold outline-none focus:border-primary"
-                    />
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-center">
-                    <input
-                      type="number"
-                      value={item.qty90}
-                      // onChange={(e) => dispatch(updateCartItemQty({ id: item.id, qty90: parseInt(e.target.value) || 0 }))}
-                      className="w-14 rounded-lg border border-border/60 bg-foreground/5 py-1 text-center text-xs font-bold outline-none focus:border-primary"
-                    />
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-center text-xs font-bold text-primary">{(item?.qty88 ?? 0) + (item?.qty90 ?? 0)}</td>
-                <td className="px-6 py-4 text-xs font-bold text-foreground/70">₹{item.mrp??0 }</td>
-                {/* <td className="px-6 py-4 text-xs font-black">₹{(item.mrp * ((item?.qty88 ?? 0) + (item?.qty90 ?? 0))).toLocaleString()}</td> */}
-                <td className="px-6 py-4 text-xs font-bold text-foreground/40">{item.gst}%</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center justify-center px-4 py-1 text-xs font-bold text-foreground/60 bg-foreground/5 rounded-lg border border-border/40">
-                    22
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <button
-                    // onClick={() => dispatch(removeFromCart(item.id))}
-                    className="rounded-xl p-2 text-foreground/30 hover:bg-red-500/10 hover:text-red-500 transition-all"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {cart.items.map((item, index) => {
+              const qty = (item?.qty88 ?? 0) + (item?.qty90 ?? 0);
+              const amount = (item.mrp ?? 0) * qty;
+              const gstRate = item.gst ?? 0;
+              const lessGst = amount / (1 + gstRate / 100);
+              const discountValue = cart.discountValue;
+              const discountAmount = lessGst * (discountValue / 100);
+              const netBilling = lessGst - discountAmount;
+              const finalBillValue = netBilling * (1 + gstRate / 100);
+
+              return (
+                <tr key={item.id} className="group hover:bg-foreground/[0.01] transition-colors">
+                  <td className="px-6 py-4 text-xs font-bold text-foreground/40">{index + 1}</td>
+                  <td className="px-6 py-4">
+                    <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-border/40 bg-foreground/[0.02]">
+                      <ProductImage 
+                        brandName={item.brand || ""} 
+                        rowData={item} 
+                        className="h-full w-full"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-foreground/70">{item.brand}</td>
+                  <td className="px-6 py-4 text-[10px] font-black tracking-tight">{item.sku}</td>
+                  <td className="px-6 py-4 text-[10px] font-medium text-foreground/50 max-w-[150px] truncate">
+                    {item.description ?? ""}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="number"
+                        value={item.qty88}
+                        onChange={(e) => dispatch(updateCartItemQty({ id: item.id || '', qty88: parseInt(e.target.value) || 0 }))}
+                        className="w-12 rounded-lg border border-border/60 bg-foreground/5 py-1 text-center text-[10px] font-bold outline-none focus:border-primary"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center">
+                      <input
+                        type="number"
+                        value={item.qty90}
+                        onChange={(e) => dispatch(updateCartItemQty({ id: item.id || '', qty90: parseInt(e.target.value) || 0 }))}
+                        className="w-12 rounded-lg border border-border/60 bg-foreground/5 py-1 text-center text-[10px] font-bold outline-none focus:border-primary"
+                      />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-center text-[10px] font-bold text-primary">{qty}</td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-foreground/70 text-right">₹{item.mrp?.toLocaleString() ?? 0}</td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-foreground/70 text-right">₹{amount.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-foreground/40 text-center">{gstRate}%</td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-foreground/60 text-right">₹{lessGst.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-foreground/40 text-center">{discountValue}%</td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-red-500/80 text-right">₹{discountAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4 text-[10px] font-bold text-foreground/80 text-right">₹{netBilling.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4 text-[10px] font-black text-primary text-right">₹{finalBillValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center">
+                      <button
+                        onClick={() => dispatch(removeFromCart(item.id || ''))}
+                        className="rounded-lg p-1.5 text-foreground/20 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
@@ -340,12 +369,12 @@ export default function CartPage() {
             </div>
             <div className="flex items-center justify-between text-xs font-bold text-foreground/60">
               <span>Discount:</span>
-              <span className="text-red-500">₹{discountAmount.toLocaleString()}</span>
+              <span className="text-red-500">₹{totalDiscount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div className="h-[1px] bg-border/60" />
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-foreground/80">Total Net Bill:</span>
-              <span className="text-xl font-black text-primary">₹{totalNetBill.toLocaleString()}</span>
+              <span className="text-xl font-black text-primary">₹{finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
         </div>

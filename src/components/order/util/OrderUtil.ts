@@ -18,7 +18,7 @@ export const calculateValues = (item: CartItem, value: number, mode: string) => 
   let NetBillings = 0;
   let FinalBillValue = 0;
 
-  debugger
+
   // 🔹 Inclusive
   if (mode === "inclusive") {
     LessGST = parseFloat((salP - (100 * salP) / (100 + gst)).toFixed(2));
@@ -45,10 +45,10 @@ export const calculateValues = (item: CartItem, value: number, mode: string) => 
 
   return {
     ...item,
-    Discount: parseFloat(discount.toFixed(2)),
-    LessGST,
-    LessDiscountAmount,
-    NetBillings,
-    FinalBillValue,
+    lessDiscount: discount,
+    lessGST:LessGST,
+    lessDiscountAmount:LessDiscountAmount,
+    netBillings:NetBillings,
+    finalBillValue:FinalBillValue,
   };
 };

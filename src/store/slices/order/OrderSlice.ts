@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { OrderState, CartModel } from './OrderType';
+import { OrderState, OrderModel } from './OrderType';
 import { fetchOrders, fetchOrderById, createOrder, updateOrder, deleteOrder } from './orderThunks';
 
 const initialState: OrderState = {
@@ -15,7 +15,7 @@ const orderSlice = createSlice({
   name: 'order',
   initialState,
   reducers: {
-    setCurrentOrder: (state, action: PayloadAction<CartModel | null>) => {
+    setCurrentOrder: (state, action: PayloadAction<OrderModel | null>) => {
       state.currentOrder = action.payload;
     },
     clearOrderError: (state) => {
@@ -65,8 +65,22 @@ const orderSlice = createSlice({
     });
     builder.addCase(createOrder.fulfilled, (state, action) => {
       state.isLoadingOrders = false;
-      state.allOrders.push(action.payload);
+      // check the 
+        if(state.allOrders.length == 0){
+          state.allOrders.push(action.payload);
+        }else {
+          const extistingOrder = state.allOrders.find(o => o._id === action.payload.id || o._id === action.payload._id);
+            if(extistingOrder){
+               // update the order
+               const index = state.allOrders.findIndex(o => o._id === action.payload.id || o._id === action.payload._id);
+               state.allOrders[index] = action.payload;
+            }else{
+              state.allOrders.push(action.payload);
+            }
+        }
+          
       state.currentOrder = action.payload;
+      
     });
     builder.addCase(createOrder.rejected, (state, action) => {
       state.isLoadingOrders = false;

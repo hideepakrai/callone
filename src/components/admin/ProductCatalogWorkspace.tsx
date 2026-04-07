@@ -1,25 +1,16 @@
 'use client';
 
 import Link from "next/link";
-import React, { useDeferredValue, useEffect, useState } from "react";
+import { OrderModel } from "@/store/slices/order/OrderType";
+import { createOrder, updateOrder } from "@/store/slices/order/orderThunks";
+import { AppDispatch, RootState } from "@/store";
+import React, { useDeferredValue, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
-  ArrowDownUp,
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsUpDown,
   FileSpreadsheet,
-  FileText,
   Package2,
-  Presentation,
   RefreshCcw,
-  Search,
-  SlidersHorizontal,
-  Trash2,
-  X,
 } from "lucide-react";
 import GetAllBrands from "../brands/GetAllBrands";
 import GetAllAtributeSet from "../attributeSet/GetAllAtributeSet";
@@ -33,7 +24,6 @@ import { ProductExportActions } from "./ProductExportActions";
 import UpdateCurrentBrand from "../brands/UpdateCurrentBrand";
 import { SelectRetailerModal } from "./SelectRetailerModal";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "@/store";
 import { addToCart, CartItem } from "@/store/slices/cart/cartSlice";
 
 
@@ -45,14 +35,6 @@ const SORT_OPTIONS = [
   { value: "variants-desc", label: "Most variants" },
   { value: "brand-asc", label: "Brand A-Z" },
 ] as const;
-
-const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
-
-function toggleValue(list: string[], value: string) {
-  return list.includes(value)
-    ? list.filter((item) => item !== value)
-    : [...list, value];
-}
 
 function statusClasses(status: string) {
   if (status === "active") {
@@ -91,7 +73,6 @@ export function ProductCatalogWorkspace({
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deletingId, setDeletingId] = useState("");
-  const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [brandFilters, setBrandFilters] = useState<string[]>([]);
   const [statusFilters, setStatusFilters] = useState<string[]>([]);
   const [typeFilters, setTypeFilters] = useState<string[]>([]);
@@ -101,9 +82,72 @@ export function ProductCatalogWorkspace({
   const [retailerModalOpen, setRetailerModalOpen] = useState(false);
 
 
-  console.log("skuQuantities--->", skuQuantities)
-  const dispatch = useDispatch();
   const cart = useSelector((state: RootState) => state.cart);
+  const dispatch = useDispatch<AppDispatch>();
+  const isApiCall = useRef(false)
+  const lastSyncedItemsRef = useRef<string>("")
+  const { currentOrder } = useSelector((state: RootState) => state.order)
+  
+  useEffect(() => {
+    // Only proceed if we have items and necessary order details
+    if (!cart.items || cart.items.length === 0 || cart.discountType == null || cart.discountValue == null) {
+      return;
+    }
+
+    const itemsJson = JSON.stringify(cart.items);
+    
+    // Skip if items haven't changed since last sync
+    if (itemsJson === lastSyncedItemsRef.current) {
+      return;
+    }
+
+    // Skip if an API call is already in progress
+    if (isApiCall.current) {
+      return;
+    }
+
+    const syncOrder = async () => {
+      isApiCall.current = true;
+      
+      const orderData: OrderModel = {
+        items: cart.items,
+        retailer_id: cart.selectedRetailer?._id ?? "",
+        manager_id: cart.selectedManager?._id ?? "",
+        salesrep_id: cart.selectedSalesRep?._id ?? "",
+        discount_type: cart.discountType,
+        discount_percent: cart.discountValue,
+        user_id: "",
+        totalAmount: cart.items.reduce((acc, item) => acc + (item.finalAmount ?? 0), 0),
+        discountAmount: cart.items.reduce((acc, item) => acc + (item.discount ?? 0), 0),
+        status: "pending",
+        note: [],
+        created_at: currentOrder?.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      try {
+        if (!currentOrder) {
+          // Create new order (POST)
+          console.log("Creating new order:", orderData);
+          await dispatch(createOrder(orderData)).unwrap();
+        } else {
+          // Update existing order (PUT)
+          const orderId = currentOrder._id || (currentOrder as any).id;
+          console.log("Updating existing order:", orderId, orderData);
+          await dispatch(updateOrder({ id: orderId.toString(), data: orderData })).unwrap();
+        }
+        lastSyncedItemsRef.current = itemsJson;
+      } catch (error) {
+        console.error("Failed to sync order:", error);
+      } finally {
+        isApiCall.current = false;
+      }
+    };
+
+    syncOrder();
+  }, [cart.items, cart.selectedRetailer, cart.selectedManager, cart.selectedSalesRep, cart.discountType, cart.discountValue, currentOrder, dispatch]);
+
+ 
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
 
 
@@ -362,10 +406,6 @@ export function ProductCatalogWorkspace({
 
   function exportVisible() {
     downloadCsv("products-visible.csv", buildExportRows(viewMode === "sku" ? (visibleRows as any) : sortedProducts));
-  }
-
-  function exportSelected() {
-    downloadCsv("products-selected.csv", buildExportRows(selectedProducts as any));
   }
 
   const [isOpen, setIsOpen] = useState(false);

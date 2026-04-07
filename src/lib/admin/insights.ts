@@ -144,9 +144,10 @@ export function buildDashboardInsights({
     (sum, order) => sum + Number(order.pricing?.finalTotal ?? 0),
     0
   );
-  const pendingApprovals = relevantOrders.filter((order) =>
-    ["submitted", "availability_check", "manager_approval"].includes(order.workflowStatus)
-  ).length;
+  const pendingApprovals = relevantOrders.filter((order) => {
+    const status = (order.workflowStatus || (order as any).status || "").toLowerCase();
+    return ["submitted", "availability_check", "manager_approval", "pending"].includes(status);
+  }).length;
   const activeProducts = products.filter((product) => product.status !== "archived").length;
   const availableUnits = inventoryLevels.reduce(
     (sum, inventory) => sum + Number(inventory.available ?? 0),
@@ -175,15 +176,16 @@ export function buildDashboardInsights({
   });
 
   const workflowMap = relevantOrders.reduce((map, order) => {
-    map.set(order.workflowStatus, (map.get(order.workflowStatus) ?? 0) + 1);
+    const status = order.workflowStatus || (order as any).status || "pending";
+    map.set(status, (map.get(status) ?? 0) + 1);
     return map;
   }, new Map<string, number>());
 
   const workflowBreakdown = Array.from(workflowMap.entries())
     .map(([label, value]) => ({
-      label: label.replace(/_/g, " "),
+      label: (label || "pending").replace(/_/g, " "),
       value,
-      tone: toneForStatus(label),
+      tone: toneForStatus(label || "pending"),
     }))
     .sort((left, right) => right.value - left.value);
 

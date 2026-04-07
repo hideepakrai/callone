@@ -1,4 +1,5 @@
-import mongoose, {Document, Schema} from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
+import { Counter } from "./Counter";
 
 export type OrderWorkflowStatus =
   | "draft"
@@ -6,152 +7,87 @@ export type OrderWorkflowStatus =
   | "availability_check"
   | "manager_approval"
   | "approved"
-  | "completed"
   | "rejected"
-  | "cancelled";
-
-const participantSnapshotSchema = new Schema(
-  {
-    legacyId: {type: Number},
-    name: {type: String, default: ""},
-    email: {type: String, default: ""},
-    phone: {type: String, default: ""},
-    role: {type: String, default: ""},
-    code: {type: String, default: ""},
-    gstin: {type: String, default: ""},
-    address: {type: String, default: ""},
-  },
-  {_id: false}
-);
-
-const orderItemSchema = new Schema(
-  {
-    variantId: {type: Schema.Types.ObjectId, ref: "Variant", default: null},
-    sku: {type: String, required: true},
-    name: {type: String, required: true},
-    brandId: {type: Schema.Types.ObjectId, ref: "Brand", default: null},
-    brandName: {type: String, default: ""},
-    warehouseId: {type: Schema.Types.ObjectId, ref: "Warehouse", default: null},
-    warehouseCode: {type: String, default: ""},
-    quantity: {type: Number, required: true, min: 1},
-    mrp: {type: Number, required: true, default: 0},
-    gstRate: {type: Number, default: 18},
-    lineDiscountValue: {type: Number, default: 0},
-    lineDiscountAmount: {type: Number, default: 0},
-    grossAmount: {type: Number, default: 0},
-    taxableAmount: {type: Number, default: 0},
-    taxAmount: {type: Number, default: 0},
-    finalAmount: {type: Number, default: 0},
-  },
-  {_id: false}
-);
-
-const orderNoteSchema = new Schema(
-  {
-    message: {type: String, required: true},
-    name: {type: String, default: ""},
-    userId: {type: Schema.Types.ObjectId, ref: "User", default: null},
-    access: {type: String, default: "all"},
-    type: {type: String, enum: ["system", "user"], default: "system"},
-    createdAt: {type: Date, default: Date.now},
-  },
-  {_id: false}
-);
-
-const attachmentSchema = new Schema(
-  {
-    kind: {type: String, enum: ["pdf", "excel", "image"], required: true},
-    originalName: {type: String, required: true},
-    filePath: {type: String, required: true},
-  },
-  {_id: false}
-);
+  | "cancelled"
+  | "completed";
 
 export interface IOrder extends Document {
-  orderNumber: string;
-  legacyOrderId?: number;
-  createdById?: mongoose.Types.ObjectId | null;
-  retailerId?: mongoose.Types.ObjectId | null;
-  managerId?: mongoose.Types.ObjectId | null;
-  salesRepId?: mongoose.Types.ObjectId | null;
-  brandId?: mongoose.Types.ObjectId | null;
+  id: number;
+  orderNumber?: string;
+  items: any[];
+  manager_id: string | null;
+  retailer_id: string;
+  salesrep_id: string;
+  user_id: string;
+  discount_type: string;
+  discount_percent: number;
+  status: string;
   workflowStatus: OrderWorkflowStatus;
-  sourceStatus?: string;
-  participantSnapshots: {
-    retailer?: Record<string, unknown>;
-    manager?: Record<string, unknown>;
-    salesRep?: Record<string, unknown>;
-  };
-  items: Array<Record<string, unknown>>;
-  pricing: {
-    discountType: "inclusive" | "exclusive" | "flat" | "none";
-    discountValue: number;
-    discountAmount: number;
-    subtotal: number;
-    taxableAmount: number;
-    taxAmount: number;
-    finalTotal: number;
-  };
-  notesTimeline: Array<Record<string, unknown>>;
-  attachments: Array<Record<string, unknown>>;
-  createdAt: Date;
-  updatedAt: Date;
+  note: any[];
+  totalAmount: number;
+  discountAmount: number;
+  pricing?: any;
+  participantSnapshots?: any;
+  notesTimeline?: any[];
+  created_at: string;
+  updated_at: string;
 }
 
 const OrderSchema = new Schema<IOrder>(
   {
-    orderNumber: {type: String, required: true, unique: true},
-    legacyOrderId: {type: Number},
-    createdById: {type: Schema.Types.ObjectId, ref: "User", default: null},
-    retailerId: {type: Schema.Types.ObjectId, ref: "User", default: null},
-    managerId: {type: Schema.Types.ObjectId, ref: "User", default: null},
-    salesRepId: {type: Schema.Types.ObjectId, ref: "User", default: null},
-    brandId: {type: Schema.Types.ObjectId, ref: "Brand", default: null},
-    workflowStatus: {
-      type: String,
-      enum: [
-        "draft",
-        "submitted",
-        "availability_check",
-        "manager_approval",
-        "approved",
-        "completed",
-        "rejected",
-        "cancelled",
-      ],
-      default: "draft",
-    },
-    sourceStatus: {type: String, default: ""},
-    participantSnapshots: {
-      retailer: participantSnapshotSchema,
-      manager: participantSnapshotSchema,
-      salesRep: participantSnapshotSchema,
-    },
-    items: [orderItemSchema],
-    pricing: {
-      discountType: {
-        type: String,
-        enum: ["inclusive", "exclusive", "flat", "none"],
-        default: "none",
-      },
-      discountValue: {type: Number, default: 0},
-      discountAmount: {type: Number, default: 0},
-      subtotal: {type: Number, default: 0},
-      taxableAmount: {type: Number, default: 0},
-      taxAmount: {type: Number, default: 0},
-      finalTotal: {type: Number, default: 0},
-    },
-    notesTimeline: [orderNoteSchema],
-    attachments: [attachmentSchema],
+    id: { type: Number, unique: true },
+    orderNumber: { type: String, unique: true },
+    items: { type: Schema.Types.Mixed, default: [] },
+    manager_id: { type: String, default: null },
+    retailer_id: { type: String, default: "" },
+    salesrep_id: { type: String, default: "" },
+    user_id: { type: String, default: "" },
+    discount_type: { type: String, default: "none" },
+    discount_percent: { type: Number, default: 0 },
+    status: { type: String, default: "draft" },
+    workflowStatus: { type: String, default: "draft" },
+    note: { type: Schema.Types.Mixed, default: [] },
+    totalAmount: { type: Number, default: 0 },
+    discountAmount: { type: Number, default: 0 },
+    pricing: { type: Schema.Types.Mixed },
+    participantSnapshots: { type: Schema.Types.Mixed },
+    notesTimeline: { type: Schema.Types.Mixed, default: [] },
+    created_at: { type: String },
+    updated_at: { type: String },
   },
-  {timestamps: true}
+  { timestamps: true }
 );
 
-OrderSchema.pre("validate", function setOrderNumber() {
-  if (!this.orderNumber) {
-    this.orderNumber = `CO-${Date.now().toString().slice(-8)}`;
+OrderSchema.pre("validate", async function () {
+  if (this.isNew) {
+    try {
+      // Auto-increment logic
+      const counter = await Counter.findOneAndUpdate(
+        { modelName: "Order" },
+        { $inc: { seq: 1 } },
+        { new: true, upsert: true }
+      );
+      this.id = counter.seq;
+      
+      if (!this.orderNumber) {
+        this.orderNumber = `ORD-${String(counter.seq).padStart(6, '0')}`;
+      }
+      
+      // Manage created_at and updated_at strings
+      if (!this.created_at) this.created_at = new Date().toISOString();
+      if (!this.updated_at) this.updated_at = new Date().toISOString();
+    } catch (error: any) {
+      throw error;
+    }
+  } else {
+    this.updated_at = new Date().toISOString();
   }
 });
 
-export const Order =
-  mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
+// Clear the model from mongoose to ensure schema changes are applied
+if (mongoose.models.Order) {
+  delete mongoose.models.Order;
+}
+
+export const Order = mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
+
