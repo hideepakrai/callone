@@ -5,13 +5,15 @@ import React, { useState } from "react";
 import { OrderModel } from "@/store/slices/order/OrderType";
 import { UserInterface } from "@/store/slices/users/userSlice";
 import { OrderItemsTable } from "./OrderItemsTable";
-import { Plus, Minus, Download, Edit3, Loader2 } from "lucide-react";
+import { Plus, Minus, Download, Edit3, Loader2, FileSpreadsheet, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentOrder } from "@/store/slices/order/OrderSlice";
 import { setCartFromOrder } from "@/store/slices/cart/cartSlice";
 import { useRouter } from "next/navigation";
 import { RootState } from "@/store";
+import { downloadOrderExcel } from "@/lib/utils/excelDownloader";
+import { downloadOrderPDF } from "@/lib/utils/pdfDownloader";
 
 interface OrderRowProps {
   order: OrderModel;
@@ -114,9 +116,36 @@ export const OrderRow = ({ order, retailers, managers }: OrderRowProps) => {
         </td>
         <td className="px-6 py-4 text-right">
           <div className="flex items-center justify-end gap-2">
-            <button className="rounded-xl border border-white/10 bg-white/5 p-2 text-white/40 transition hover:border-white/20 hover:text-white">
-              <Download size={14} />
-            </button>
+            <div className="group relative flex items-center justify-center">
+              <button 
+                onClick={() => downloadOrderExcel(order, retailers, managers)}
+                className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2 text-emerald-400/60 transition hover:border-emerald-500/40 hover:text-emerald-400"
+              >
+                <FileSpreadsheet size={14} />
+              </button>
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none">
+                <div className="bg-emerald-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                  EXCEL
+                  <div className="absolute top-[95%] left-1/2 -translate-x-1/2 border-x-4 border-x-transparent border-t-4 border-t-emerald-500"></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="group relative flex items-center justify-center">
+              <button 
+                onClick={() => downloadOrderPDF(order, retailers, managers, allSaleRep)}
+                className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-2 text-rose-400/60 transition hover:border-rose-500/40 hover:text-rose-400"
+              >
+                <FileText size={14} />
+              </button>
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none">
+                <div className="bg-rose-500 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg whitespace-nowrap">
+                  PDF
+                  <div className="absolute top-[95%] left-1/2 -translate-x-1/2 border-x-4 border-x-transparent border-t-4 border-t-rose-400"></div>
+                </div>
+              </div>
+            </div>
+
             <button className="rounded-xl border border-white/10 bg-white/5 p-2 text-white/40 transition hover:border-white/20 hover:text-white">
               <Edit3 size={14} 
               onClick={() => handleOrderEdit(order)}
