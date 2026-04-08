@@ -20,6 +20,7 @@ const EMPTY_INSIGHTS_DATA: DashboardInsightsInput = {
   brands: [],
   users: [],
   inventoryLevels: [],
+  warehouses: [],
 };
 
 export default async function AdminDashboardPage() {
@@ -121,7 +122,12 @@ export default async function AdminDashboardPage() {
         />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
+      <div className="grid gap-4 xl:grid-cols-3">
+        <BreakdownCard
+          title="Warehouse distribution"
+          description="Stock availability across active fulfillment hubs."
+          items={insights.warehouseBreakdown}
+        />
         <BreakdownCard
           title="Team distribution"
           description="Current active users by responsibility."
@@ -129,7 +135,7 @@ export default async function AdminDashboardPage() {
         />
         <LeaderboardCard
           title="Leading people"
-          description="Team members attached to the highest order value in the system."
+          description="Team members attached to the highest order value."
           items={insights.topContributors}
           valuePrefix=""
         />

@@ -99,11 +99,11 @@ export const OrderRow = ({ order, retailers, managers }: OrderRowProps) => {
         </td>
         <td className="px-6 py-4">
           <span className="inline-flex items-center rounded-full bg-rose-500/10 px-2.5 py-0.5 text-xs font-bold text-rose-400">
-             ₹{order.discountAmount?.toLocaleString() || 0}
+             ₹{(order.discountAmount || (order as any).pricing?.discountAmount || 0).toLocaleString()}
           </span>
         </td>
         <td className="px-6 py-4 text-sm font-black text-white">
-          ₹{order.totalAmount?.toLocaleString()}
+          ₹{(order.totalAmount || (order as any).pricing?.finalTotal || 0).toLocaleString()}
         </td>
         <td className="px-6 py-4">
           <span className={`inline-flex rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${

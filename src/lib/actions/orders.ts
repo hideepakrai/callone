@@ -452,6 +452,8 @@ export async function saveOrder(formData: FormData) {
       salesRep: await buildParticipantSnapshot(salesRepId),
     },
     items: enrichedItems,
+    totalAmount: totals.finalAmount,
+    discountAmount: totals.discountAmount,
     pricing: {
       discountType,
       discountValue: globalDiscountValue,
