@@ -11,6 +11,9 @@ interface CartStepperProps {
   activeStep: number;
   isSubmitting: boolean;
   onSubmitOrder: () => void;
+  onCheckAvailability: () => void;
+  onApproveOrder: () => void;
+  onCompleteOrder: () => void;
 }
 
 export const CartStepper: React.FC<CartStepperProps> = ({
@@ -18,6 +21,9 @@ export const CartStepper: React.FC<CartStepperProps> = ({
   activeStep,
   isSubmitting,
   onSubmitOrder,
+  onCheckAvailability,
+  onApproveOrder,
+  onCompleteOrder,
 }) => {
   return (
     <div className="flex items-center justify-between px-12 py-4">
@@ -34,16 +40,21 @@ export const CartStepper: React.FC<CartStepperProps> = ({
               <span className="block text-[10px] font-bold uppercase tracking-tighter text-foreground/30">Step {step.id}</span>
               <span className={`text-xs font-bold ${activeStep >= step.id ? 'text-foreground' : 'text-foreground/40'}`}>{step.label}</span>
             </div>
-            {step.id === 1 && (
+            {(step.id === 1 || step.id === 2 || step.id === 3 || step.id === 4) && activeStep === step.id && (
               <button 
-                onClick={onSubmitOrder}
+                onClick={
+                  step.id === 1 ? onSubmitOrder : 
+                  step.id === 2 ? onCheckAvailability : 
+                  step.id === 3 ? onApproveOrder : 
+                  onCompleteOrder
+                }
                 disabled={isSubmitting}
                 className={clsx(
                   "mt-2 rounded-xl bg-black px-4 py-2 text-[10px] font-bold uppercase text-white shadow-lg transition-all active:scale-95",
                   isSubmitting && "opacity-50 cursor-not-allowed"
                 )}
               >
-                {isSubmitting ? 'Checking Stock...' : 'Submit Order'}
+                {isSubmitting ? 'Processing...' : step.id === 1 ? 'Submit Order' : step.id === 2 ? 'Check Availability' : step.id === 3 ? 'Approve Order' : 'Complete Order'}
               </button>
             )}
           </div>

@@ -3,23 +3,23 @@ import {ProductCatalogWorkspace} from "@/components/admin/ProductCatalogWorkspac
 import type {ProductCatalogRecord} from "@/components/products/ProductType";
 
 type SoftgoodCatalogWorkspaceProps = {
-  products: ProductCatalogRecord[];
+  // products: ProductCatalogRecord[];
   mode?: "managed" | "source_readonly";
   sourceCollectionName?: string;
-  isLoading?: boolean;
+  // isLoading?: boolean;
   initialViewMode?: "product" | "sku";
 };
 
 export function SoftgoodCatalogWorkspace({
-  products,
+  // products,
   mode = "managed",
   sourceCollectionName = "",
-  isLoading = false,
+  // isLoading = false,
   initialViewMode = "sku",
 }: SoftgoodCatalogWorkspaceProps) {
   return (
     <ProductCatalogWorkspace
-      products={products}
+      // products={products}
       title="Callaway Softgoods"
       description="Manage the Callaway Softgoods catalog, including apparel, accessories, and seasonal softline products."
       badgeLabel="SoftGood Catalog"
@@ -32,7 +32,7 @@ export function SoftgoodCatalogWorkspace({
           ? `This catalog is currently sourced from ${sourceCollectionName || "the raw softgoods collection"}. Use Imports for catalog refreshes and daily stock updates so grouping and warehouse rules stay consistent.`
           : ""
       }
-      isLoading={isLoading}
+      // isLoading={isLoading}
       initialViewMode={initialViewMode}
     />
   );

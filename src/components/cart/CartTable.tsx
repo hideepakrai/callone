@@ -3,8 +3,11 @@ import { Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import { ProductImage } from '@/components/admin/ProductImage';
 import { CartItem } from '@/store/slices/cart/cartSlice';
-import { RootState } from '@/store';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '@/store';
+import { removeFromCart } from '@/store/slices/cart/cartSlice';
+import { updateOrder } from '@/store/slices/order/orderThunks';
+import { toast } from 'sonner';
 
 interface CartTableProps {
   items: CartItem[];
@@ -17,8 +20,9 @@ interface CartTableProps {
     finalTotal: number;
   };
   onUpdateQty: (itemId: string, field: 'qty88' | 'qty90', value: number, stock: number) => void;
-  onRemoveItem: (id: string) => void;
+  // onRemoveItem: (id: string) => void;
   onSetDiscount: (type: 'inclusive' | 'exclusive' | 'flat' | 'none', value: number) => void;
+  isDisabled?: boolean;
 }
 
 export const CartTable: React.FC<CartTableProps> = ({
@@ -28,14 +32,17 @@ export const CartTable: React.FC<CartTableProps> = ({
   discountValue,
   summary,
   onUpdateQty,
-  onRemoveItem,
+  // onRemoveItem,
   onSetDiscount,
+  isDisabled = false,
 }) => {
   const { subtotal, totalDiscount, finalTotal } = summary;
   const {travismathew} = useSelector((state:RootState) => state.travisMathew);
   const {ogio} = useSelector((state:RootState) => state.ogio);
   const {softgoods} = useSelector((state:RootState) => state.softgoods);
   const {hardgoods} = useSelector((state:RootState) => state.hardgoods);  
+  const { currentOrder } = useSelector((state: RootState) => state.order);
+  const dispatch = useDispatch<AppDispatch>();
   const cartData:CartItem[]=useMemo(()=>{
     return items.map((item)=>{
       const brand= item.brand
@@ -66,6 +73,31 @@ export const CartTable: React.FC<CartTableProps> = ({
     });
   },[items,travismathew, ogio, softgoods, hardgoods, discountValue])
   
+
+  const handleRemoveItem = async (itemId: string) => {
+    // 1. Remove from Redux immediately for UI responsiveness
+    dispatch(removeFromCart(itemId));
+    
+    // 2. If we are editing an existing order, persist to API
+    if (currentOrder?._id) {
+      try {
+        const updatedItems = items.filter(item => 
+          (item.id !== itemId && item.sku !== itemId)
+        );
+        
+        const data = {
+          ...currentOrder,
+          items: updatedItems,
+        };
+        
+        await dispatch(updateOrder({ id: currentOrder._id, data })).unwrap();
+        toast.success("Item removed from order");
+      } catch (error) {
+        console.error("Failed to remove item from server:", error);
+        toast.error("Failed to sync removal with server");
+      }
+    }
+  };
   return (
     <div className="overflow-hidden rounded-[32px] border border-border/50 bg-background shadow-sm">
       <table className="w-full text-left border-collapse">
@@ -126,7 +158,7 @@ export const CartTable: React.FC<CartTableProps> = ({
                       <input
                         type="number"
                         value={item.qty88}
-                        disabled={stock88 === 0 && !itemErrors[item.id || ""]}
+                        disabled={isDisabled || (stock88 === 0 && !itemErrors[item.id || ""])}
                         onChange={(e) => {
                           const val = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                           onUpdateQty(itemId, 'qty88', val, stock88);
@@ -153,7 +185,7 @@ export const CartTable: React.FC<CartTableProps> = ({
                       <input
                         type="number"
                         value={item.qty90}
-                        disabled={stock90 === 0 && !itemErrors[item.id || ""]}
+                        disabled={isDisabled || (stock90 === 0 && !itemErrors[item.id || ""])}
                         onChange={(e) => {
                           const val = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                           onUpdateQty(itemId, 'qty90', val, stock90);
@@ -178,8 +210,9 @@ export const CartTable: React.FC<CartTableProps> = ({
                 <td className="px-6 py-4">
                   <div className="flex items-center justify-center">
                     <button
-                      onClick={() => onRemoveItem(itemId)}
-                      className="rounded-lg p-1.5 text-foreground/20 hover:bg-red-500/10 hover:text-red-500 transition-all"
+                      onClick={() => handleRemoveItem(itemId)}
+                      disabled={isDisabled}
+                      className="rounded-lg p-1.5 text-foreground/20 hover:bg-red-500/10 hover:text-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -198,8 +231,9 @@ export const CartTable: React.FC<CartTableProps> = ({
             <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/40 block">Discount Mode</span>
             <select
               value={discountType}
+              disabled={isDisabled}
               onChange={(e) => onSetDiscount(e.target.value as any, discountValue)}
-              className="rounded-lg border-none bg-foreground/5 px-3 py-1.5 text-xs font-bold outline-none"
+              className="rounded-lg border-none bg-foreground/5 px-3 py-1.5 text-xs font-bold outline-none disabled:cursor-not-allowed"
             >
               <option value="inclusive">Inclusive</option>
               <option value="exclusive">Exclusive</option>
@@ -211,8 +245,9 @@ export const CartTable: React.FC<CartTableProps> = ({
             <input
               type="number"
               value={discountValue}
+              disabled={isDisabled}
               onChange={(e) => onSetDiscount(discountType as any, parseInt(e.target.value) || 0)}
-              className="w-12 rounded-lg bg-foreground/5 px-2 py-1.5 text-center text-sm font-bold outline-none"
+              className="w-12 rounded-lg bg-foreground/5 px-2 py-1.5 text-center text-sm font-bold outline-none disabled:cursor-not-allowed"
             />
             <span className="text-xs font-bold text-foreground/40">%</span>
           </div>

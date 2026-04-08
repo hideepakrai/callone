@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const role = searchParams.get("role");
-    console.log("role---",role)
+   
 
     await dbConnect();
     
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     const users = await User.find(query).select("-password_hash -new_hash_password -passwordHash").lean();
-    console.log("users",users)
+  
     return NextResponse.json({ data: users });
   } catch (error: any) {
     console.error("Error fetching users by role:", error);

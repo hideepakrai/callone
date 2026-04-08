@@ -17,7 +17,7 @@ export type ProductCatalogRecord = {
   name: string;
   slug: string;
   baseSku: string;
-  sku?:string
+  sku?: string
   brand: {
     id: string;
     name: string;
@@ -38,7 +38,7 @@ export type ProductCatalogRecord = {
 };
 
 export type ProductCatalogWorkspaceProps = {
-  products: ProductCatalogRecord[];
+  // products: ProductCatalogRecord[];
   title?: string;
   description?: string;
   badgeLabel?: string;
@@ -48,19 +48,19 @@ export type ProductCatalogWorkspaceProps = {
   newProductHref?: string | null;
   newProductLabel?: string;
   sourceNotice?: string;
-  isLoading?: boolean;
+  // isLoading?: boolean;
   initialViewMode?: "product" | "sku";
 };
 
 export interface ProductExcelData {
 
-  attributeSetId?: string; 
-  brandId?: string;      
+  attributeSetId?: string;
+  brandId?: string;
   sku?: string;
   description?: string;
   category?: string;
   season?: string;
-  style_code?: string; 
+  style_code?: string;
   color?: string;
   color_code?: string;
   size?: string;

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { OrderModel } from "@/store/slices/order/OrderType";
 import { createOrder, updateOrder } from "@/store/slices/order/orderThunks";
 import { AppDispatch, RootState } from "@/store";
-import React, { useDeferredValue, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   FileSpreadsheet,
@@ -26,6 +26,7 @@ import { SelectRetailerModal } from "./SelectRetailerModal";
 import { useSelector, useDispatch } from "react-redux";
 import { addToCart, CartItem } from "@/store/slices/cart/cartSlice";
 import { ImageSliderModal } from "./ImageSliderModal";
+import { RAW_CATALOG_CONFIGS, transformRawRecords } from "@/lib/admin/catalog-transformer";
 
 
 
@@ -52,7 +53,7 @@ function statusClasses(status: string) {
 
 
 export function ProductCatalogWorkspace({
-  products,
+  // products,
   title = "Products",
   description = "Manage your product catalog, update pricing, verify stock levels, and organize variants across all brands.",
   badgeLabel = "Catalog Management",
@@ -62,7 +63,7 @@ export function ProductCatalogWorkspace({
   newProductHref = "/admin/products/new",
   newProductLabel = "New product",
   sourceNotice = "",
-  isLoading = false,
+  // isLoading = false,
   initialViewMode = "sku",
 }: ProductCatalogWorkspaceProps) {
   const router = useRouter();
@@ -93,6 +94,44 @@ export function ProductCatalogWorkspace({
   const isApiCall = useRef(false)
   const lastSyncedItemsRef = useRef<string>("")
   const { currentOrder } = useSelector((state: RootState) => state.order)
+
+
+   const { softgoods, isLoading: isLoadingSoftgoods } = useSelector((state: RootState) => state.softgoods);
+    const { hardgoods, isLoading: isLoadingHardgoods } = useSelector((state: RootState) => state.hardgoods);
+    const { ogio, isLoading: isLoadingOgio } = useSelector((state: RootState) => state.ogio);
+    const { travismathew: travis, isLoading: isLoadingTravis } = useSelector(
+      (state: RootState) => state.travisMathew
+    );
+    const pathName= usePathname()
+    const section= pathName.split("/")[4]
+    const isLoading = useMemo(() => {
+      if (!section) return false;
+      if (section === "callaway-softgoods") return isLoadingSoftgoods;
+      if (section === "callaway-hardgoods") return isLoadingHardgoods;
+      if (section === "ogio") return isLoadingOgio;
+      if (section === "travis-mathew") return isLoadingTravis;
+      return false;
+    }, [section, isLoadingSoftgoods, isLoadingHardgoods, isLoadingOgio, isLoadingTravis]);
+  
+    const products = useMemo(() => {
+      if (!section) return [];
+  
+      const config = RAW_CATALOG_CONFIGS.find(
+        (c) => c.sectionSlug === section
+      );
+      if (!config) return [];
+  
+      let rawData: any[] = [];
+      if (section === "callaway-softgoods") rawData = softgoods;
+      else if (section === "callaway-hardgoods") rawData = hardgoods;
+      else if (section === "ogio") rawData = ogio;
+      else if (section === "travis-mathew") rawData = travis;
+  
+      if (!rawData || rawData.length === 0) return [];
+  
+      return transformRawRecords(config, rawData);
+    }, [section, softgoods, hardgoods, ogio, travis]);
+     const showWorkspace = products.length > 0 || isLoading;
   
   useEffect(() => {
     // Only proceed if we have items and necessary order details
@@ -101,7 +140,7 @@ export function ProductCatalogWorkspace({
     }
 
     const itemsJson = JSON.stringify(cart.items);
-    console.log("item json---->",itemsJson)
+ 
     
     // Skip if items haven't changed since last sync
     if (itemsJson === lastSyncedItemsRef.current) {

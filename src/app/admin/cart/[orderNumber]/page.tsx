@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { Tag } from 'lucide-react';
-import { removeFromCart, updateCartItemQty, updateCartItemStock, setDiscount, setSelectedRetailer, setSelectedManager, setSelectedSalesRep } from '@/store/slices/cart/cartSlice';
+import { removeFromCart, updateCartItemQty, updateCartItemStock, setDiscount, setSelectedRetailer, setSelectedManager, setSelectedSalesRep, clearCart } from '@/store/slices/cart/cartSlice';
 import { fetchUsersByRole } from '@/store/slices/users/userThunks';
 import { PageHeader } from '@/components/admin/PageHeader';
 import { OrderModel } from '@/store/slices/order/OrderType';
@@ -37,7 +37,26 @@ export default function CartPage() {
   const cart = useSelector((state: RootState) => state.cart);
   const { allRetailer, allManager, allSaleRep, isFetchedAllRetailer, isFetchedAllManager, isFetchedAllSaleRep } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch<AppDispatch>();
-  const [activeStep] = useState(1);
+  const [activeStep, setActiveStep] = useState(0);
+
+  const {currentOrder} = useSelector((state: RootState) => state.order);
+
+  useEffect(() => {
+
+    if(currentOrder?.status=="pending"){
+      setActiveStep(1);
+    }
+    if(currentOrder?.status === 'submitted') {
+      setActiveStep(2);
+    }
+    if(currentOrder?.status === 'check-availability') {
+      setActiveStep(3);
+    }
+    if(currentOrder?.status === 'approved' || currentOrder?.status === '√' || currentOrder?.status === 'complete-order') {
+      setActiveStep(4);
+    }
+
+  }, [currentOrder]);
 
   const [isEditingRetailer, setIsEditingRetailer] = useState(false);
   const [isEditingManager, setIsEditingManager] = useState(false);
@@ -67,7 +86,6 @@ export default function CartPage() {
     return acc;
   }, { subtotal: 0, totalDiscount: 0, finalTotal: 0 });
 
-  const {currentOrder} = useSelector((state: RootState) => state.order);
 
   const handleUpdateRetailer = async(retailerId: string) => {
     const data:OrderModel={
@@ -158,49 +176,28 @@ export default function CartPage() {
     if (brandLower.includes("hard")) return "/api/admin/products/hardgoods";
     if (brandLower.includes("soft")) return "/api/admin/products/softgoods";
     return "/api/admin/products";
-  };
-
-  const handleSubmitOrder = async () => {
-    setIsSubmitting(true);
+  };  const performStockCheck = async () => {
     const newErrors: Record<string, boolean> = {};
     const stockCheckPromises = cart.items.map(async (item) => {
       try {
         const api = getBrandApi(item.brand || "");
         const response = await fetch(`${api}?sku=${item.sku}`);
         const result = await response.json();
-          console.log("result of stock submit--",result)
         if (result.success && result.data && result.data.length > 0) {
           const latestProduct = result.data[0];
           const latestStock88 = parseInt(latestProduct.stock_88 || latestProduct.stock88 || "0");
           const latestStock90 = parseInt(latestProduct.stock_90 || latestProduct.stock90 || "0");
-          console.log("ietm.brand--",item.brand)
           
          if(item.brand==="Ogio"){
-          dispatch(updateStockOgio({ 
-            sku: item.sku || "", 
-            stock88: latestStock88, 
-            stock90: latestStock90 
-          }));
+          dispatch(updateStockOgio({ sku: item.sku || "", stock88: latestStock88, stock90: latestStock90 }));
         } if(item.brand==="Travis Mathew"){
-          dispatch(updateStockTravisMathew({ 
-            sku: item.sku || "", 
-            stock88: latestStock88, 
-            stock90: latestStock90 
-          }));
+          dispatch(updateStockTravisMathew({ sku: item.sku || "", stock88: latestStock88, stock90: latestStock90 }));
         }
         if(item.brand==="Callaway Softgoods"){
-          dispatch(updateStockSoftgoods({ 
-            sku: item.sku || "", 
-            stock88: latestStock88, 
-            stock90: latestStock90 
-          }));
+          dispatch(updateStockSoftgoods({ sku: item.sku || "", stock88: latestStock88, stock90: latestStock90 }));
         }
         if(item.brand==="Callaway Hardgoods"){
-          dispatch(updateStockHardgoods({ 
-            sku: item.sku || "", 
-            stock88: latestStock88, 
-            stock90: latestStock90 
-          }));
+          dispatch(updateStockHardgoods({ sku: item.sku || "", stock88: latestStock88, stock90: latestStock90 }));
         }
           if ((item.qty88 || 0) > latestStock88 || (item.qty90 || 0) > latestStock90) {
             newErrors[item.id || ""] = true;
@@ -213,25 +210,113 @@ export default function CartPage() {
 
     await Promise.all(stockCheckPromises);
     setItemErrors(newErrors);
-    setIsSubmitting(false);
+    return newErrors;
+  };
 
-    if (Object.keys(newErrors).length > 0) {
+  const handleSubmitOrder = async () => {
+    if(currentOrder && (currentOrder?.manager_id==" " || currentOrder?.salesrep_id=="" || currentOrder?.retailer_id=="")){
+      toast.error("Please select manager, sales representative and retailer");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    const errors = await performStockCheck();
+    if (Object.keys(errors).length > 0) {
       toast.error("Some products are out of stock or have insufficient quantity.");
-    } else {
-      try {
-        if (currentOrder?._id) {
-          const data: OrderModel = {
-            ...currentOrder,
-            items: cart.items,
-            status: 'submitted',
-          
-          };
-          await dispatch(updateOrder({ id: currentOrder._id, data })).unwrap();
-          toast.success("Order submitted successfully!");
-        }
-      } catch (error) {
-        toast.error("Failed to update order status");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      if (currentOrder?._id) {
+        const data: OrderModel = { ...currentOrder, items: cart.items, status: 'submitted' };
+        await dispatch(updateOrder({ id: currentOrder._id, data })).unwrap();
+        toast.success("Order submitted successfully!");
       }
+    } catch (error) {
+      toast.error("Failed to update order status");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCheckAvailability = async () => {
+    setIsSubmitting(true);
+    const errors = await performStockCheck();
+    if (Object.keys(errors).length > 0) {
+      toast.error("Some products are out of stock or have insufficient quantity.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      if (currentOrder?._id) {
+        const data: OrderModel = { ...currentOrder, items: cart.items, status: 'check-availability' };
+        await dispatch(updateOrder({ id: currentOrder._id, data })).unwrap();
+        toast.success("Stock availability checked!");
+      }
+    } catch (error) {
+      toast.error("Failed to update status");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleApproveOrder = async () => {
+    setIsSubmitting(true);
+    const errors = await performStockCheck();
+    if (Object.keys(errors).length > 0) {
+      toast.error("Cannot approve: Some products are out of stock.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      if (currentOrder?._id) {
+        // Stock Decrement
+        const stockUpdatePromises = cart.items.map(async (item) => {
+          const api = getBrandApi(item.brand || "");
+          const stockRes = await fetch(`${api}?sku=${item.sku}`);
+          const stockData = await stockRes.json();
+          if (stockData.success && stockData.data && stockData.data.length > 0) {
+            const product = stockData.data[0];
+            const currentStock88 = parseInt(product.stock_88 ?? product.stock88 ?? "0");
+            const currentStock90 = parseInt(product.stock_90 ?? product.stock90 ?? "0");
+            const updateData = {
+              sku: item.sku, brand: item.brand, brandId: product.brandId, attributeSetId: product.attributeSetId,
+              stock_88: Math.max(0, currentStock88 - (item.qty88 || 0)),
+              stock_90: Math.max(0, currentStock90 - (item.qty90 || 0)),
+            };
+            await fetch(api, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updateData) });
+          }
+        });
+        await Promise.all(stockUpdatePromises);
+
+        const data: OrderModel = { ...currentOrder, items: cart.items, status: 'approved' };
+        await dispatch(updateOrder({ id: currentOrder._id, data })).unwrap();
+        toast.success("Order approved and stock updated!");
+      }
+    } catch (error) {
+      console.error("Failed to approve order:", error);
+      toast.error("Failed to approve order or update stock");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCompleteOrder = async () => {
+    setIsSubmitting(true);
+    try {
+      if (currentOrder?._id) {
+        const data: OrderModel = { ...currentOrder, items: cart.items, status: 'complete-order' };
+        await dispatch(updateOrder({ id: currentOrder._id, data })).unwrap();
+        dispatch(clearCart());
+        toast.success("Order completed successfully!");
+      }
+    } catch (error) {
+      toast.error("Failed to complete order");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -279,6 +364,9 @@ export default function CartPage() {
           activeStep={activeStep}
           isSubmitting={isSubmitting}
           onSubmitOrder={handleSubmitOrder}
+          onCheckAvailability={handleCheckAvailability}
+          onApproveOrder={handleApproveOrder}
+          onCompleteOrder={handleCompleteOrder}
         />
 
         <CartTable 
@@ -288,8 +376,9 @@ export default function CartPage() {
           discountValue={cart.discountValue}
           summary={summary}
           onUpdateQty={handleUpdateQty}
-          onRemoveItem={(id) => dispatch(removeFromCart(id))}
+          // onRemoveItem={(id) => dispatch(removeFromCart(id))}
           onSetDiscount={(type, value) => dispatch(setDiscount({ type, value }))}
+          isDisabled={activeStep >= 4}
         />
       </div>
     </>

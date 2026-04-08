@@ -11,7 +11,7 @@ const SoftgoodHome = () => {
     return (
         <>
            <SoftgoodCatalogWorkspace
-           products={[]}
+        //    products={[]}
            />
             <GetAllProducts />
             <UpdateBrandAttribute />

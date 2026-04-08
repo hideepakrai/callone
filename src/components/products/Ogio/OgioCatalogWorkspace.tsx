@@ -1,25 +1,27 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {ProductCatalogWorkspace} from "@/components/admin/ProductCatalogWorkspace";
 import type {ProductCatalogRecord} from "@/components/products/ProductType";
 
 type OgioCatalogWorkspaceProps = {
-  products: ProductCatalogRecord[];
+  // products: ProductCatalogRecord[];
   mode?: "managed" | "source_readonly";
   sourceCollectionName?: string;
-  isLoading?: boolean;
+  // isLoading?: boolean;
   initialViewMode?: "product" | "sku";
 };
 
 export function OgioCatalogWorkspace({
-  products,
+  // products,
   mode = "managed",
   sourceCollectionName = "",
-  isLoading = false,
+  // isLoading = false,
   initialViewMode = "sku",
 }: OgioCatalogWorkspaceProps) {
-  return (
+
+   
+   return (
     <ProductCatalogWorkspace
-      products={products}
+      // products={products}
       title="Ogio"
       description="Travel gear, backpacks, and bag essentials from the Ogio assortment."
       badgeLabel="Ogio Catalog"
@@ -32,7 +34,7 @@ export function OgioCatalogWorkspace({
           ? `This catalog is currently sourced from ${sourceCollectionName || "the raw Ogio collection"}. Use Imports for catalog and inventory refreshes, and keep image uploads on a separate lane.`
           : ""
       }
-      isLoading={isLoading}
+      // isLoading={isLoading}
       initialViewMode={initialViewMode}
     />
   );
