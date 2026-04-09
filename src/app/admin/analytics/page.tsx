@@ -19,6 +19,7 @@ const EMPTY_INSIGHTS_DATA: DashboardInsightsInput = {
   brands: [],
   users: [],
   inventoryLevels: [],
+  warehouses: [],
 };
 
 export default async function AnalyticsPage() {
