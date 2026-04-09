@@ -4,7 +4,7 @@ export interface NoteModel{
   message?: string;
   name?: string;
   date?: string;
-  user_id?: number;
+  user_id?: string;
   access?: string;
   type?: string;
   }

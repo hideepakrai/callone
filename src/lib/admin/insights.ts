@@ -168,7 +168,10 @@ export function buildDashboardInsights({
   }).length;
 
   // Relevant products: strictly status 'active' for 'Active Products' headline
-  const activeProducts = products.filter((product) => product.status === "active").length;
+  // OR any product that came from a brand-specific collection (assumed active)
+  const activeProducts = products.filter((product) => 
+    product.status === "active" || (product as any).brandSource !== "main"
+  ).length;
   
   const availableUnits = inventoryLevels.reduce(
     (sum, inventory) => sum + Number(inventory.available ?? 0),
@@ -314,9 +317,22 @@ export function buildDashboardInsights({
       const brandLabel = brandLookup.get(brandId) || (product as any).brandName || "Unassigned";
       const entry =
         map.get(brandLabel) ?? {label: brandLabel, products: 0, variants: 0, stock: 0};
+      
+      const isSpecialized = (product as any).brandSource !== "main";
+      
       entry.products += 1;
-      entry.variants += variantsByProductId.get(String(product._id)) ?? 0;
-      entry.stock += stockByProductId.get(String(product._id)) ?? 0;
+      
+      if (isSpecialized) {
+        // For specialized collections, each document is typically a SKU/variant
+        entry.variants += 1;
+        // Use direct stock fields if available (e.g., stock_88, stock_90)
+        const directStock = Number((product as any).stock_88 ?? 0) + Number((product as any).stock_90 ?? 0);
+        entry.stock += directStock;
+      } else {
+        entry.variants += variantsByProductId.get(String(product._id)) ?? 0;
+        entry.stock += stockByProductId.get(String(product._id)) ?? 0;
+      }
+      
       map.set(brandLabel, entry);
       return map;
     }, new Map<string, BrandCatalogInsight>())

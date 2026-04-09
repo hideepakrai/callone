@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import {ProductCatalogWorkspace} from "@/components/admin/ProductCatalogWorkspace";
-import type {ProductCatalogRecord} from "@/components/products/ProductType";
+import { ProductCatalogWorkspace } from "@/components/admin/productTable/groupView/ProductCatalogWorkspace";
+import type { ProductCatalogRecord } from "@/components/products/ProductType";
 
 type OgioCatalogWorkspaceProps = {
   // products: ProductCatalogRecord[];
@@ -18,8 +18,8 @@ export function OgioCatalogWorkspace({
   initialViewMode = "sku",
 }: OgioCatalogWorkspaceProps) {
 
-   
-   return (
+
+  return (
     <ProductCatalogWorkspace
       // products={products}
       title="Ogio"

@@ -1,6 +1,6 @@
 import React from "react";
-import {ProductCatalogWorkspace} from "@/components/admin/ProductCatalogWorkspace";
-import type {ProductCatalogRecord} from "@/components/products/ProductType";
+import { ProductCatalogWorkspace } from "@/components/admin/productTable/groupView/ProductCatalogWorkspace";
+import type { ProductCatalogRecord } from "@/components/products/ProductType";
 
 type SoftgoodCatalogWorkspaceProps = {
   // products: ProductCatalogRecord[];

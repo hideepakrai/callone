@@ -1,10 +1,10 @@
 'use client';
 
+import { calculateValues } from "@/components/order/util/OrderUtil";
 import { AppDispatch, RootState } from "@/store";
 import { addToCart, CartItem } from "@/store/slices/cart/cartSlice";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { calculateValues } from "../order/util/OrderUtil";
 
 interface SkuQuantityInputProps {
   row: any;
@@ -56,6 +56,7 @@ export function SkuQuantityInput({
         lessDiscount: 0,
         netBilling: 0,
         finalAmount: 0,
+        isIndividualDiscount:false
       };
       const updateData = calculateValues(data, 22, "inclusive");
       // console.log("updateData---->",updateData)

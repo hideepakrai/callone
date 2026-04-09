@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Package2, Pencil, Trash2 } from "lucide-react";
-import { ProductImage } from "./ProductImage";
+import { ProductImage } from "../../ProductImage";
 
 interface ProductTableProps {
   visibleRows: any[];
@@ -86,20 +86,20 @@ export function ProductTable({
                 </td>
                 <td className="border-b border-border/60 px-4 py-4 align-top">
                   <div className="flex gap-3">
-                    <ProductImage 
+                    <ProductImage
                       brandName={row.brand.name}
                       rowData={row}
-                      alt={row.name} 
-                      className="h-11 w-11 shrink-0" 
+                      alt={row.name}
+                      className="h-11 w-11 shrink-0"
                       onClick={() => {
                         const s3_url = `https://callaways3bucketcc001-prod.s3.ap-south-1.amazonaws.com/public/productimg/TRAVIS-Images`;
                         const s3_url_ogio = `https://callaways3bucketcc001-prod.s3.ap-south-1.amazonaws.com/public/productimg/OGIO-Images`;
                         const skuValue = row.sku || row.baseSku;
-                        
+
                         const resolveUrl = (url: string) => {
                           if (!url) return '';
                           if (url.startsWith('http') || url.startsWith('/')) return url;
-                          
+
                           if (row.brand.name === "Travis Mathew") {
                             const fam = skuValue?.replace(/_[^_]*$/, '') || '';
                             return `${s3_url}/${fam}/${url}`;
@@ -110,10 +110,10 @@ export function ProductTable({
                         };
 
                         const primary = resolveUrl(row.primary_url || row.primary_image_url);
-                        const gallery = row.gallery_images_url 
-                          ? row.gallery_images_url.split(',').map((url: string) => resolveUrl(url.trim())) 
+                        const gallery = row.gallery_images_url
+                          ? row.gallery_images_url.split(',').map((url: string) => resolveUrl(url.trim()))
                           : [];
-                        
+
                         onOpenPreview([primary, ...gallery].filter(Boolean), 0);
                       }}
                     />
@@ -183,40 +183,40 @@ export function ProductTable({
                   </span>
                 </td>
                 <td className="border-b border-border/60 px-4 py-4 align-top">
-                    <div className="flex items-center gap-1.5">
-                      <div className="group relative">
-                        <Link
-                          href={`/admin/products/${row.id}/edit`}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/10 bg-primary/4 text-primary transition-all hover:bg-primary hover:text-white"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-                        {/* Tooltip */}
-                        <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-all group-hover:opacity-100">
-                          Edit Product
-                          <div className="absolute top-full left-1/2 h-1 w-1 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-black/80" />
-                        </div>
-                      </div>
-
-                      <div className="group relative">
-                        <button
-                          onClick={() => handleDelete(row.id)}
-                          disabled={deletingId === row.id}
-                          className="flex h-9 w-9 items-center justify-center rounded-xl border border-danger/10 bg-danger/4 text-danger transition-all hover:bg-danger hover:text-white disabled:opacity-50 disabled:hover:bg-danger/4 disabled:hover:text-danger"
-                        >
-                          {deletingId === row.id ? (
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </button>
-                        {/* Tooltip */}
-                        <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-all group-hover:opacity-100">
-                          {deletingId === row.id ? "Deleting..." : "Delete Product"}
-                          <div className="absolute top-full left-1/2 h-1 w-1 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-red-600" />
-                        </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="group relative">
+                      <Link
+                        href={`/admin/products/${row.id}/edit`}
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-primary/10 bg-primary/4 text-primary transition-all hover:bg-primary hover:text-white"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Link>
+                      {/* Tooltip */}
+                      <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-black/80 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-all group-hover:opacity-100">
+                        Edit Product
+                        <div className="absolute top-full left-1/2 h-1 w-1 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-black/80" />
                       </div>
                     </div>
+
+                    <div className="group relative">
+                      <button
+                        onClick={() => handleDelete(row.id)}
+                        disabled={deletingId === row.id}
+                        className="flex h-9 w-9 items-center justify-center rounded-xl border border-danger/10 bg-danger/4 text-danger transition-all hover:bg-danger hover:text-white disabled:opacity-50 disabled:hover:bg-danger/4 disabled:hover:text-danger"
+                      >
+                        {deletingId === row.id ? (
+                          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </button>
+                      {/* Tooltip */}
+                      <div className="pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-red-600 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white opacity-0 transition-all group-hover:opacity-100">
+                        {deletingId === row.id ? "Deleting..." : "Delete Product"}
+                        <div className="absolute top-full left-1/2 h-1 w-1 -translate-x-1/2 border-x-4 border-t-4 border-x-transparent border-t-red-600" />
+                      </div>
+                    </div>
+                  </div>
                 </td>
               </tr>
             );

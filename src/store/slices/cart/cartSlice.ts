@@ -12,6 +12,7 @@ export interface CartItem {
   stock88?: number;
   stock90?: number;
   qty?: number;
+  isIndividualDiscount?: boolean;
   mrp?: number;
   gst?: number;
   amount?: number;
@@ -100,8 +101,37 @@ const cartSlice = createSlice({
         if (action.payload.stock90 !== undefined) item.stock90 = action.payload.stock90;
       }
     },
+    toggleItemDiscount(state, action: PayloadAction<{ sku?: string }>) {
+      const { sku } = action.payload;
+      const item = state.items.find(item => 
+        (sku && item.sku === sku)
+      );
+      if (item) {
+        item.isIndividualDiscount = !item.isIndividualDiscount;
+        if (item.isIndividualDiscount && item.discount === undefined) {
+          item.discount = state.discountValue;
+        }
+      }
+    },
+    updateCartItemDiscount(state, action: PayloadAction<{ sku?: string, discount: number }>) {
+      const { sku, discount } = action.payload;
+      const item = state.items.find(item => 
+        (sku && item.sku === sku)
+      );
+      if (item) {
+        item.discount = discount;
+      }
+    },
     clearCart(state) {
       state.items = [];
+    },
+    updateDiscountValue(state, action: PayloadAction<number>) {
+      state.discountValue = action.payload;
+      state.items.forEach((item) => {
+        if (!item.isIndividualDiscount) {
+          item.discount = action.payload;
+        }
+      });
     },
     setDiscount(state, action: PayloadAction<{ type: CartState['discountType'], value: number }>) {
       state.discountType = action.payload.type;
@@ -139,8 +169,11 @@ export const {
   removeFromCart,
   updateCartItemQty,
   updateCartItemStock,
+  toggleItemDiscount,
+  updateCartItemDiscount,
   clearCart,
   setDiscount,
+  updateDiscountValue,
   setCartFromOrder
 } = cartSlice.actions;
 

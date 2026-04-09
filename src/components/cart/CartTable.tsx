@@ -3,7 +3,7 @@ import { Trash2, Percent, Calculator, ShoppingBag } from 'lucide-react';
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { ProductImage } from '@/components/admin/ProductImage';
-import { CartItem } from '@/store/slices/cart/cartSlice';
+import { CartItem, toggleItemDiscount, updateCartItemDiscount, updateDiscountValue } from '@/store/slices/cart/cartSlice';
 import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { removeFromCart } from '@/store/slices/cart/cartSlice';
@@ -24,6 +24,8 @@ interface CartTableProps {
   };
   onUpdateQty: (itemId: string, field: 'qty88' | 'qty90', value: number, stock: number) => void;
   onSetDiscount: (type: 'inclusive' | 'exclusive' | 'flat' | 'none', value: number) => void;
+ // onToggleDiscount?: (itemId: string) => void;
+  // onUpdateItemDiscount?: (itemId: string, value: number) => void;
   isDisabled?: boolean;
 }
 
@@ -34,7 +36,10 @@ export const CartTable: React.FC<CartTableProps> = ({
   discountValue,
   summary,
   onUpdateQty,
-  onSetDiscount,
+  // onRemoveItem,
+    onSetDiscount,
+  // onToggleDiscount,
+  // onUpdateItemDiscount,
   isDisabled = false,
 }) => {
   const discountOptions: SelectOption[] = [
@@ -49,7 +54,6 @@ export const CartTable: React.FC<CartTableProps> = ({
   const { hardgoods } = useSelector((state: RootState) => state.hardgoods);
   const { currentOrder } = useSelector((state: RootState) => state.order);
   const dispatch = useDispatch<AppDispatch>();
-
   const cartData: CartItem[] = useMemo(() => {
     return items.map((item) => {
       const brand = item.brand;
@@ -98,6 +102,45 @@ export const CartTable: React.FC<CartTableProps> = ({
       }
     }
   };
+
+  const handleToggleDiscount = async (itemId: string) => {
+    // 1. Toggle discount in Redux immediately for UI responsiveness
+    dispatch(toggleItemDiscount({sku:itemId}));
+    
+    // 2. If we are editing an existing order, persist to API
+    if (currentOrder?._id) {
+      try {
+        const updatedItems = items.map(item => {
+          if (item.id === itemId || item.sku === itemId) {
+            return {
+              ...item,
+              isIndividualDiscount: !item.isIndividualDiscount,
+            };
+          }
+          return item;
+        });
+        
+        const data = {
+          ...currentOrder,
+          items: updatedItems,
+        };
+        
+        await dispatch(updateOrder({ id: currentOrder._id, data })).unwrap();
+        toast.success("Discount toggled successfully");
+      } catch (error) {
+        console.error("Failed to toggle discount on server:", error);
+        toast.error("Failed to sync discount toggle with server");
+      }
+    }
+  };
+
+  const handleUpdateItemDiscount = async (itemId: string, discount: number) => {
+    dispatch(updateCartItemDiscount({ sku:itemId, discount }))
+  }
+  const handleDiscountvalue = async (discountType: string, discountValue: number) => {
+    dispatch(updateDiscountValue(discountValue ))
+  }
+
 
   return (
     <div className="space-y-12">
@@ -268,9 +311,19 @@ export const CartTable: React.FC<CartTableProps> = ({
               <span className="text-[10px] font-black uppercase tracking-widest text-foreground/30">Auto Calculations</span>
               <p className="text-[10px] font-bold text-foreground/50">Real-time status sync</p>
             </div>
+          <div className="h-10 w-[1px] bg-border/40" />
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              value={discountValue}
+              disabled={isDisabled}
+              onChange={(e)=>handleDiscountvalue(discountType as any, parseInt(e.target.value) || 0)}
+              className="w-12 rounded-lg bg-foreground/5 px-2 py-1.5 text-center text-sm font-bold outline-none disabled:cursor-not-allowed"
+            />
+            <span className="text-xs font-bold text-foreground/40">%</span>
           </div>
         </div>
-
+        </div>
         {/* Right Side: Final Totals */}
         <div className="rounded-[32px] overflow-hidden border border-border/40 bg-background shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
           <div className="bg-[#111111] p-6 text-white flex items-center justify-between">

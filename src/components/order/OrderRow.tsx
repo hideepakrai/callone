@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { RootState } from "@/store";
 import { downloadOrderExcel } from "@/lib/utils/excelDownloader";
 import { downloadOrderPDF } from "@/lib/utils/pdfDownloader";
+import { toast } from "sonner";
 
 interface OrderRowProps {
   order: OrderModel;
@@ -44,7 +45,10 @@ export const OrderRow = ({ order, retailers, managers }: OrderRowProps) => {
   const updated = formatDate(order.updated_at);
 
   const handleOrderEdit = (order: OrderModel) => {
-    console.log(order);
+      if(order?.status=="complete-order"){
+        toast.error("Order is completed , you can't edit it");
+        return;
+      }
     dispatch(setCurrentOrder(order));
     
     const retailer = retailers.find(r => r._id === order.retailer_id || r.id?.toString() === order.retailer_id);
