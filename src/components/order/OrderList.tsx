@@ -22,9 +22,9 @@ export const OrderList = () => {
   const filteredOrders = useMemo(() => {
     return allOrders.filter((order) => {
       const statusMatch = activeTab === "pending" 
-        ? order.status !== "completed" 
+        ? order.status !== "complete-order" 
         : activeTab === "completed" 
-          ? order.status === "completed"
+          ? order.status === "complete-order"
           : true; // "users" tab might have different logic or just show all
 
       const query = searchQuery.toLowerCase();

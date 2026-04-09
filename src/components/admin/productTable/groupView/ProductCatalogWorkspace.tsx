@@ -12,20 +12,20 @@ import {
   Package2,
   RefreshCcw,
 } from "lucide-react";
-import GetAllBrands from "../brands/GetAllBrands";
-import GetAllAtributeSet from "../attributeSet/GetAllAtributeSet";
-import { ProductCatalogWorkspaceProps } from "../products/ProductType";
-import { buildExportRows, downloadCsv } from "../products/utils/ProductExcel";
-import UpdateBrandAttribute from "../products/UpdateBrandAttribute";
-import ImportFile from "../products/importFile/ImportFile";
-import { CatalogHeader } from "./CatalogHeader";
-import { CatalogTable } from "./CatalogTable";
-import { ProductExportActions } from "./ProductExportActions";
-import UpdateCurrentBrand from "../brands/UpdateCurrentBrand";
-import { SelectRetailerModal } from "./SelectRetailerModal";
+import GetAllBrands from "../../../brands/GetAllBrands";
+import GetAllAtributeSet from "../../../attributeSet/GetAllAtributeSet";
+import { ProductCatalogWorkspaceProps } from "../../../products/ProductType";
+import { buildExportRows, downloadCsv } from "../../../products/utils/ProductExcel";
+import UpdateBrandAttribute from "../../../products/UpdateBrandAttribute";
+import ImportFile from "../../../products/importFile/ImportFile";
+import { CatalogHeader } from "../../CatalogHeader";
+import { CatalogTable } from "../../CatalogTable";
+import { ProductExportActions } from "../../ProductExportActions";
+import UpdateCurrentBrand from "../../../brands/UpdateCurrentBrand";
+import { SelectRetailerModal } from "../../SelectRetailerModal";
 import { useSelector, useDispatch } from "react-redux";
 import { addToCart, CartItem } from "@/store/slices/cart/cartSlice";
-import { ImageSliderModal } from "./ImageSliderModal";
+import { ImageSliderModal } from "../../ImageSliderModal";
 import { RAW_CATALOG_CONFIGS, transformRawRecords } from "@/lib/admin/catalog-transformer";
 
 
@@ -95,44 +95,44 @@ export function ProductCatalogWorkspace({
   const lastSyncedItemsRef = useRef<string>("")
   const { currentOrder } = useSelector((state: RootState) => state.order)
 
+  const { user } = useSelector((state: RootState) => state.user)
+  const { softgoods, isLoading: isLoadingSoftgoods } = useSelector((state: RootState) => state.softgoods);
+  const { hardgoods, isLoading: isLoadingHardgoods } = useSelector((state: RootState) => state.hardgoods);
+  const { ogio, isLoading: isLoadingOgio } = useSelector((state: RootState) => state.ogio);
+  const { travismathew: travis, isLoading: isLoadingTravis } = useSelector(
+    (state: RootState) => state.travisMathew
+  );
+  const pathName = usePathname()
+  const section = pathName.split("/")[4]
+  const isLoading = useMemo(() => {
+    if (!section) return false;
+    if (section === "callaway-softgoods") return isLoadingSoftgoods;
+    if (section === "callaway-hardgoods") return isLoadingHardgoods;
+    if (section === "ogio") return isLoadingOgio;
+    if (section === "travis-mathew") return isLoadingTravis;
+    return false;
+  }, [section, isLoadingSoftgoods, isLoadingHardgoods, isLoadingOgio, isLoadingTravis]);
 
-   const { softgoods, isLoading: isLoadingSoftgoods } = useSelector((state: RootState) => state.softgoods);
-    const { hardgoods, isLoading: isLoadingHardgoods } = useSelector((state: RootState) => state.hardgoods);
-    const { ogio, isLoading: isLoadingOgio } = useSelector((state: RootState) => state.ogio);
-    const { travismathew: travis, isLoading: isLoadingTravis } = useSelector(
-      (state: RootState) => state.travisMathew
+  const products = useMemo(() => {
+    if (!section) return [];
+
+    const config = RAW_CATALOG_CONFIGS.find(
+      (c) => c.sectionSlug === section
     );
-    const pathName= usePathname()
-    const section= pathName.split("/")[4]
-    const isLoading = useMemo(() => {
-      if (!section) return false;
-      if (section === "callaway-softgoods") return isLoadingSoftgoods;
-      if (section === "callaway-hardgoods") return isLoadingHardgoods;
-      if (section === "ogio") return isLoadingOgio;
-      if (section === "travis-mathew") return isLoadingTravis;
-      return false;
-    }, [section, isLoadingSoftgoods, isLoadingHardgoods, isLoadingOgio, isLoadingTravis]);
-  
-    const products = useMemo(() => {
-      if (!section) return [];
-  
-      const config = RAW_CATALOG_CONFIGS.find(
-        (c) => c.sectionSlug === section
-      );
-      if (!config) return [];
-  
-      let rawData: any[] = [];
-      if (section === "callaway-softgoods") rawData = softgoods;
-      else if (section === "callaway-hardgoods") rawData = hardgoods;
-      else if (section === "ogio") rawData = ogio;
-      else if (section === "travis-mathew") rawData = travis;
-  
-      if (!rawData || rawData.length === 0) return [];
-  
-      return transformRawRecords(config, rawData);
-    }, [section, softgoods, hardgoods, ogio, travis]);
-     const showWorkspace = products.length > 0 || isLoading;
-  
+    if (!config) return [];
+
+    let rawData: any[] = [];
+    if (section === "callaway-softgoods") rawData = softgoods;
+    else if (section === "callaway-hardgoods") rawData = hardgoods;
+    else if (section === "ogio") rawData = ogio;
+    else if (section === "travis-mathew") rawData = travis;
+
+    if (!rawData || rawData.length === 0) return [];
+
+    return transformRawRecords(config, rawData);
+  }, [section, softgoods, hardgoods, ogio, travis]);
+  const showWorkspace = products.length > 0 || isLoading;
+
   useEffect(() => {
     // Only proceed if we have items and necessary order details
     if (!cart.items || cart.items.length === 0 || cart.discountType == null || cart.discountValue == null) {
@@ -140,8 +140,8 @@ export function ProductCatalogWorkspace({
     }
 
     const itemsJson = JSON.stringify(cart.items);
- 
-    
+
+
     // Skip if items haven't changed since last sync
     if (itemsJson === lastSyncedItemsRef.current) {
       return;
@@ -154,7 +154,7 @@ export function ProductCatalogWorkspace({
 
     const syncOrder = async () => {
       isApiCall.current = true;
-      
+
       const orderData: OrderModel = {
         items: cart.items,
         retailer_id: cart.selectedRetailer?._id ?? "",
@@ -162,11 +162,20 @@ export function ProductCatalogWorkspace({
         salesrep_id: cart.selectedSalesRep?._id ?? "",
         discount_type: cart.discountType,
         discount_percent: cart.discountValue,
-        user_id: "",
+        user_id: user?._id,
         totalAmount: cart.items.reduce((acc, item) => acc + (item.finalAmount ?? 0), 0),
         discountAmount: cart.items.reduce((acc, item) => acc + (item.lessDiscount ?? 0), 0),
         status: "pending",
-        note: [],
+        note: [{
+          message: "Order Initiate",
+          name: user?.name,
+          date: new Date().toISOString(),
+          user_id: user?._id,
+          type: "note",
+          access: "super_admin",
+
+
+        }],
         created_at: currentOrder?.created_at || new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -193,7 +202,7 @@ export function ProductCatalogWorkspace({
     syncOrder();
   }, [cart.items, cart.selectedRetailer, cart.selectedManager, cart.selectedSalesRep, cart.discountType, cart.discountValue, currentOrder, dispatch]);
 
- 
+
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
 
 
@@ -470,36 +479,36 @@ export function ProductCatalogWorkspace({
 
   // Commenting out the automatic sync to cart as it conflicts with the incremental addToCart logic.
   // If live-sync is desired, a different "syncCart" action should be used to avoid double-counting.
- 
-  useEffect(( ) => {
-      if(Object.values(skuQuantities).length > 0){
 
-          const dataItem:CartItem[]=[]
-        Object.entries(skuQuantities).forEach(([rowKey, qtys]) => {
-             console.log(rowKey,qtys)
-             const data={
-              id:rowKey,
-              sku:qtys.sku    ,
-              brand:qtys.brand,
-              description:qtys.description,
-              image:qtys.image,
-              qty88:qtys.qty88,
-              qty90:qtys.qty90,
-              mrp:qtys.mrp,
-              gst:qtys.gst??0,
-              amount:qtys.amount??0,
-              discount:qtys.discount??0,
-              lessDiscount:qtys.lessDiscount??0,
-              netBilling:qtys.netBilling??0,
-              finalAmount:qtys.finalAmount??0,
-             }
-             dataItem.push(data)
-        })
-        console.log("dataItem---->",dataItem)
-        // dispatch(addToCart(dataItem))
-      }
+  useEffect(() => {
+    if (Object.values(skuQuantities).length > 0) {
+
+      const dataItem: CartItem[] = []
+      Object.entries(skuQuantities).forEach(([rowKey, qtys]) => {
+        console.log(rowKey, qtys)
+        const data = {
+          id: rowKey,
+          sku: qtys.sku,
+          brand: qtys.brand,
+          description: qtys.description,
+          image: qtys.image,
+          qty88: qtys.qty88,
+          qty90: qtys.qty90,
+          mrp: qtys.mrp,
+          gst: qtys.gst ?? 0,
+          amount: qtys.amount ?? 0,
+          discount: qtys.discount ?? 0,
+          lessDiscount: qtys.lessDiscount ?? 0,
+          netBilling: qtys.netBilling ?? 0,
+          finalAmount: qtys.finalAmount ?? 0,
+        }
+        dataItem.push(data)
+      })
+      console.log("dataItem---->", dataItem)
+      // dispatch(addToCart(dataItem))
+    }
   }, [skuQuantities])
-  
+
 
   const handleAddToCart = () => {
     if (!cart.selectedRetailer) {
@@ -519,7 +528,7 @@ export function ProductCatalogWorkspace({
           const qtyTotal = (qtys.qty88 || 0) + (qtys.qty90 || 0);
           const itemMrp = (row as any).mrp || 0;
           const amount = qtyTotal * itemMrp;
-          
+
           itemsToAdd.push({
             id: (row as any).variantId || row.id,
             sku: row.sku || row.baseSku,
@@ -630,7 +639,7 @@ export function ProductCatalogWorkspace({
                   <div className="h-2 w-2 animate-ping rounded-full bg-primary"></div>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="text-sm font-bold uppercase tracking-widest text-white">Updating Catalog</span>
+                  <span className="text-sm font-bold uppercase tracking-widest text-white">Loading product please wait ...</span>
                   <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40">Synchronizing data...</span>
                 </div>
               </div>

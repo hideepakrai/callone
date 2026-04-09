@@ -35,15 +35,33 @@ export function InsightMetricCard({
   value,
   detail,
   accent,
+  icon: Icon,
+  image,
 }: {
   label: string;
   value: string;
   detail: string;
   accent: string;
+  icon?: React.ElementType;
+  image?: string;
 }) {
   return (
-    <div className="group premium-card rounded-[24px] p-4 transition duration-200 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(10,10,10,0.14)]">
-      <div className="mb-5 h-1.5 w-16 rounded-full transition group-hover:w-24" style={{backgroundColor: accent}} />
+    <div className="group premium-card relative overflow-hidden rounded-[24px] p-4 transition duration-200 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(10,10,10,0.14)]">
+      <div className="flex items-start justify-between">
+        <div className="mb-5 h-1.5 w-16 rounded-full transition group-hover:w-24" style={{backgroundColor: accent}} />
+        {(Icon || image) && (
+          <div 
+            className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl transition duration-300 group-hover:scale-110"
+            style={{ backgroundColor: `${accent}15`, color: accent }}
+          >
+            {image ? (
+              <img src={image} alt={label} className="h-full w-full object-contain p-1.5" />
+            ) : Icon ? (
+              <Icon size={20} strokeWidth={2.5} />
+            ) : null}
+          </div>
+        )}
+      </div>
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
         {label}
       </p>

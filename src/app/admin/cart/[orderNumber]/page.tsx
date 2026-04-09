@@ -5,11 +5,10 @@ import { useParams } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { Tag } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { removeFromCart, updateCartItemQty, updateCartItemStock, setDiscount, setSelectedRetailer, setSelectedManager, setSelectedSalesRep, clearCart } from '@/store/slices/cart/cartSlice';
 import { fetchUsersByRole } from '@/store/slices/users/userThunks';
 import { PageHeader } from '@/components/admin/PageHeader';
-import { OrderModel } from '@/store/slices/order/OrderType';
+import { NoteModel, OrderModel } from '@/store/slices/order/OrderType';
 import { updateOrder } from '@/store/slices/order/orderThunks';
 import { toast } from 'sonner';
 import OrderHydration from '@/components/order/OrderHydration';
@@ -24,6 +23,8 @@ import { updateStockOgio } from '@/store/slices/ogioSlice/ogioSlice';
 import { updateStockHardgoods } from '@/store/slices/hardgoodSlice/hardgoodSlice';
 import { updateStockTravisMathew } from '@/store/slices/travisMathewSlice/travisMathewSlice';
 import { updateStockSoftgoods } from '@/store/slices/softgoods/softgoodsSlice';
+import { AddNoteModal } from '@/components/cart/AddNoteModal';
+import { motion } from 'framer-motion';
 
 const STEPS = [
   { id: 1, label: 'Submit Order' },
@@ -64,6 +65,7 @@ export default function CartPage() {
   const [isEditingSalesRep, setIsEditingSalesRep] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [itemErrors, setItemErrors] = useState<Record<string, boolean>>({});
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -77,7 +79,11 @@ export default function CartPage() {
     const amount = (item.mrp ?? 0) * qty;
     const gstRate = item.gst ?? 0;
     const lessGst = amount / (1 + gstRate / 100);
-    const discountAmount = lessGst * (cart.discountValue / 100);
+    
+    // Use individual discount if enabled
+    const currentDiscount = item.isIndividualDiscount ? (item.discount ?? 0) : cart.discountValue;
+    const discountAmount = lessGst * (currentDiscount / 100);
+    
     const netBilling = lessGst - discountAmount;
     const finalBillValue = netBilling * (1 + gstRate / 100);
 
@@ -321,6 +327,18 @@ export default function CartPage() {
     }
   };
 
+  const handleSaveNote = async (note: NoteModel) => {
+    const updateNote: NoteModel[] = [...(currentOrder?.note || []), note];
+    const data: OrderModel = { ...currentOrder, note: updateNote };
+    const response=await dispatch(updateOrder({ id: currentOrder?._id ?? "", data })).unwrap();
+    console.log("Note saved successfully:", response);
+    if(response){
+      toast.success("Note saved successfully!");
+    }else{
+      toast.error("Failed to save note");
+    }
+  };
+
   return (
     <>
     <GetAllProducts/>
@@ -332,7 +350,9 @@ export default function CartPage() {
             title={!orderNumber || orderNumber === 'new' ? 'New Workspace Order' : `Order: #${orderNumber}`}
             description="Processing hub for administrative verified orders and inventory allocation."
           />
-          <button className="flex items-center gap-3 rounded-2xl border border-border/40 bg-surface px-6 py-3 text-[11px] font-black uppercase tracking-widest text-foreground/50 shadow-sm transition-all hover:bg-foreground/[0.03] hover:text-foreground">
+          <button className="flex items-center gap-2 rounded-xl border border-border/60 bg-background px-4 py-2 text-sm font-bold text-foreground/70 shadow-sm"
+          onClick={()=>setIsNoteModalOpen(true)}
+          >
             <Tag size={16} />
             Append Internal Note
           </button>
@@ -375,18 +395,24 @@ export default function CartPage() {
             onCompleteOrder={handleCompleteOrder}
           />
 
-          <CartTable 
-            items={cart.items}
-            itemErrors={itemErrors}
-            discountType={cart.discountType}
-            discountValue={cart.discountValue}
-            summary={summary}
-            onUpdateQty={handleUpdateQty}
-            onSetDiscount={(type, value) => dispatch(setDiscount({ type, value }))}
-            isDisabled={activeStep >= 4}
-          />
-        </motion.div>
-      </div>
-    </>
+        <CartTable 
+          items={cart.items}
+          itemErrors={itemErrors}
+          discountType={cart.discountType}
+          discountValue={cart.discountValue}
+          summary={summary}
+          onUpdateQty={handleUpdateQty}
+          // onRemoveItem={(id) => dispatch(removeFromCart(id))}
+          onSetDiscount={(type, value) => dispatch(setDiscount({ type, value }))}
+          isDisabled={activeStep >= 4}
+        />
+      </motion.div>
+    </div>
+    <AddNoteModal 
+      isOpen={isNoteModalOpen} 
+      onClose={() => setIsNoteModalOpen(false)} 
+      onConfirm={handleSaveNote} 
+    />
+  </>
   );
 }

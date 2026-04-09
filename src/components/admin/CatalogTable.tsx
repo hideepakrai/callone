@@ -2,8 +2,8 @@
 
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ProductTable } from "./ProductTable";
-import { SkuTable } from "./SkuTable";
+import { ProductTable } from "./productTable/groupView/ProductTable";
+import { SkuTable } from "./productTable/skuTable/SkuTable";
 import { EmptyState } from "./EmptyState";
 import { CartItem } from "@/store/slices/cart/cartSlice";
 
@@ -56,7 +56,7 @@ export function CatalogTable({
             {viewMode === "product" ? "Product List" : "SKU List"}
           </h3>
           <p className="text-sm text-foreground/56">
-            {viewMode === "product" 
+            {viewMode === "product"
               ? "Select products to perform bulk actions or export data."
               : "Individual SKUs and variants from Redux state."}
           </p>
@@ -71,7 +71,7 @@ export function CatalogTable({
 
       <div className="w-full max-h-[calc(100vh-250px)] overflow-auto rounded-b-[24px]">
         {visibleRows.length === 0 ? (
-          <EmptyState 
+          <EmptyState
             title="No records found"
             description="Try adjusting your search terms or clearing active filters."
           />
