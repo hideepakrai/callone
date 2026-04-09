@@ -80,9 +80,9 @@ export default async function NewOrderPage({
       <SectionCard title="Order builder">
         <NewOrderForm
           action={saveOrder}
-          retailers={users.filter((user) => user.roleKey === "retailer").map((user) => ({id: user._id.toString(), label: user.name, sublabel: user.email}))}
-          managers={users.filter((user) => user.roleKey === "manager").map((user) => ({id: user._id.toString(), label: user.name}))}
-          salesReps={users.filter((user) => user.roleKey === "sales_rep").map((user) => ({id: user._id.toString(), label: user.name}))}
+          retailers={users.filter((user) => user.role === "retailer").map((user) => ({id: user._id.toString(), label: user.name, sublabel: user.email}))}
+          managers={users.filter((user) => user.role === "manager").map((user) => ({id: user._id.toString(), label: user.name}))}
+          salesReps={users.filter((user) => user.role === "sales_rep").map((user) => ({id: user._id.toString(), label: user.name}))}
           brands={brands.map((brand) => ({id: brand._id.toString(), label: brand.name}))}
           defaults={{
             retailerId: defaultRetailerId,

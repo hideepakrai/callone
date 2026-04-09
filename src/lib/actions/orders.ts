@@ -81,7 +81,7 @@ async function buildParticipantSnapshot(userId?: string) {
     name: user.name,
     email: user.email,
     phone: user.phone,
-    role: user.roleKey,
+    role: user.role,
     code: user.code,
     gstin: user.gstin,
     address: user.address,

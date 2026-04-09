@@ -36,7 +36,7 @@ type InsightBrand = {
 };
 
 type InsightUser = {
-  roleKey?: string;
+  role?: string;
   name?: string;
 };
 
@@ -262,7 +262,7 @@ export function buildDashboardInsights({
 
   const roleDistribution = Array.from(
     users.reduce((map, user) => {
-      const label = (user.roleKey || "unassigned").replace(/_/g, " ");
+      const label = (user.role || "unassigned").replace(/_/g, " ");
       map.set(label, (map.get(label) ?? 0) + 1);
       return map;
     }, new Map<string, number>())

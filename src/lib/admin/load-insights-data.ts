@@ -17,7 +17,7 @@ export async function loadInsightsData() {
       Product.find().lean(),
       Variant.find().lean(),
       Brand.find().lean(),
-      User.find({roleKey: {$ne: "retailer"}}).lean(),
+      User.find({role: {$ne: "retailer"}}).lean(),
       InventoryLevel.find().lean(),
       Warehouse.find().lean(),
     ]);

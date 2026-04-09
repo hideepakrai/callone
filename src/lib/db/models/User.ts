@@ -9,7 +9,8 @@ export interface IUser extends Document {
   new_hash_password?: string;
   password_hash?: string;
   roleId: mongoose.Types.ObjectId;
-  roleKey: string;
+  role: string;
+  roleKey?: string;
   phone?: string;
   phone2?: string;
   code?: string;
@@ -39,7 +40,8 @@ const UserSchema = new Schema<IUser>(
     new_hash_password: {type: String},
     password_hash: {type: String},
     roleId: {type: Schema.Types.ObjectId, ref: "Role", required: true},
-    roleKey: {type: String, required: true, index: true},
+    role: {type: String, required: true, index: true},
+    roleKey: {type: String, required: false},
     phone: {type: String, default: ""},
     phone2: {type: String, default: ""},
     code: {type: String, default: ""},
@@ -62,6 +64,11 @@ const UserSchema = new Schema<IUser>(
   },
   {timestamps: true}
 );
+
+// Clear the model from mongoose to ensure schema changes are applied
+if (mongoose.models.User) {
+  delete mongoose.models.User;
+}
 
 export const User =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);

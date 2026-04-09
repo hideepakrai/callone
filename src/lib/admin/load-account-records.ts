@@ -9,7 +9,7 @@ type LookupOption = {
   id: string;
   label: string;
   description?: string;
-  roleKey?: string;
+  role?: string;
 };
 
 export async function loadAccountRecords() {
@@ -20,7 +20,7 @@ export async function loadAccountRecords() {
     Role.find({isActive: true}).sort({name: 1}).lean(),
     Brand.find({isActive: true}).sort({name: 1}).lean(),
     Warehouse.find({isActive: true}).sort({priority: 1, name: 1}).lean(),
-    User.find({roleKey: {$in: ["super_admin", "admin", "manager"]}})
+    User.find({role: {$in: ["super_admin", "admin", "manager"]}})
       .sort({name: 1})
       .lean(),
   ]);
@@ -38,7 +38,7 @@ export async function loadAccountRecords() {
         id: String(role._id ?? ""),
         label: role.name,
         description: role.description,
-        roleKey: role.key,
+        role: role.key,
       },
     ])
   );
@@ -88,8 +88,8 @@ export async function loadAccountRecords() {
       name: user.name ?? "",
       email: user.email ?? "",
       roleId: String(user.roleId ?? ""),
-      roleKey: user.roleKey ?? "",
-      roleName: role?.label ?? user.roleKey ?? "Unassigned",
+      role: user.role ?? "",
+      roleName: role?.label ?? user.role ?? "Unassigned",
       designation: user.designation ?? "",
       managerId: String(user.managerId ?? ""),
       managerName: managerMap.get(String(user.managerId ?? ""))?.label ?? "",

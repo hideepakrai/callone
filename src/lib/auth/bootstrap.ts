@@ -66,6 +66,7 @@ export async function ensureSystemBootstrap() {
         email: adminEmail.toLowerCase(),
         passwordHash: bootstrapPasswordHash,
         roleId: superAdminRole._id,
+        role: superAdminRole.key,
         roleKey: superAdminRole.key,
         designation: "Bootstrap Admin",
         status: "active",
@@ -75,6 +76,7 @@ export async function ensureSystemBootstrap() {
         $set: {
           passwordHash: bootstrapPasswordHash,
           roleId: superAdminRole._id,
+          role: superAdminRole.key,
           roleKey: superAdminRole.key,
           status: "active",
         },
@@ -172,6 +174,7 @@ export async function ensureSystemBootstrap() {
           $set: {
             passwordHash: bootstrapPasswordHash,
             roleId: candidate.role._id,
+            role: candidate.role.key,
             roleKey: candidate.role.key,
             designation: candidate.designation,
             status: "active",
@@ -183,6 +186,7 @@ export async function ensureSystemBootstrap() {
           email: candidate.email,
           passwordHash: bootstrapPasswordHash,
           roleId: candidate.role._id,
+          role: candidate.role.key,
           roleKey: candidate.role.key,
           designation: candidate.designation,
           status: "active",

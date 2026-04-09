@@ -73,7 +73,7 @@ export const ADMIN_ACCOUNTS_MENU_ITEMS: AdminCommandItem[] = ACCOUNT_SECTIONS.ma
           ? BadgeCheck
           : Users,
     group: "Navigate",
-    keywords: ["accounts", "users", "roles", section.label, ...section.roleKeys],
+    keywords: ["accounts", "users", "roles", section.label, ...section.roles],
     roles:
       section.slug === "admins" || section.slug === "all"
         ? ["super_admin", "admin"]

@@ -18,7 +18,7 @@ export default async function UsersPage() {
     Role.find({isActive: true}).sort({name: 1}).lean(),
     Brand.find({isActive: true}).sort({name: 1}).lean(),
     Warehouse.find({isActive: true}).sort({priority: 1}).lean(),
-    User.find({roleKey: {$in: ["super_admin", "admin", "manager"]}}).sort({name: 1}).lean(),
+    User.find({role: {$in: ["super_admin", "admin", "manager"]}}).sort({name: 1}).lean(),
   ]);
 
   return (
@@ -36,7 +36,7 @@ export default async function UsersPage() {
         }
       />
       <SectionCard title="Create user">
-        <form action={saveUser} className="grid gap-4 lg:grid-cols-2">
+        <form action={async (formData) => { await saveUser(formData); }} className="grid gap-4 lg:grid-cols-2">
           <label className="block">
             <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-foreground/45">Name</span>
             <input name="name" className="w-full rounded-2xl border border-border/70 bg-background px-4 py-3 text-sm outline-none" required />
@@ -123,7 +123,7 @@ export default async function UsersPage() {
                   <div className="font-semibold text-foreground">{user.name}</div>
                   <p className="text-xs text-foreground/55">{user.email}</p>
                 </td>
-                <td className="px-4 py-4 text-sm text-foreground/70">{role?.name ?? user.roleKey}</td>
+                <td className="px-4 py-4 text-sm text-foreground/70">{role?.name ?? user.role}</td>
                 <td className="px-4 py-4 text-sm text-foreground/70">{manager?.name ?? "None"}</td>
                 <td className="px-4 py-4 text-sm text-foreground/70">{user.status}</td>
                 <td className="px-4 py-4">

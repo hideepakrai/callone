@@ -251,7 +251,7 @@ async function importUsers(rows: SqlRow[]) {
   for (const row of rows) {
     const legacyId = toNumber(row.id);
     const legacyRole = String(row.role ?? "Retailer").toLowerCase();
-    const roleKey =
+    const role =
       legacyRole === "manager"
         ? "manager"
         : legacyRole === "sales representative"
@@ -276,8 +276,9 @@ async function importUsers(rows: SqlRow[]) {
         email: String(row.email ?? `legacy-${legacyId}@callone.local`).toLowerCase(),
         name: String(row.name ?? `Legacy User ${legacyId}`),
         passwordHash,
-        roleId: roleMap.get(roleKey),
-        roleKey,
+        roleId: roleMap.get(role),
+        role,
+        roleKey: role,
         phone: String(row.phone ?? ""),
         phone2: String(row.phone2 ?? ""),
         code: String(row.code ?? ""),

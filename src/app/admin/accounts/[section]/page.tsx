@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {notFound} from "next/navigation";
-import {AccountsWorkspace} from "@/components/admin/AccountsWorkspace";
+import {AccountsWorkspace} from "@/components/accounts/AccountsWorkspace";
 import {getAccountSection} from "@/lib/admin/account-sections";
 import {loadAccountRecords} from "@/lib/admin/load-account-records";
 
@@ -15,24 +15,24 @@ export default async function AccountSectionPage({
   if (!section) {
     notFound();
   }
-
+  
   const {users, roles, brands, warehouses, managers} = await loadAccountRecords();
   const filteredUsers =
     section.slug === "all"
       ? users
-      : users.filter((user) => section.roleKeys.includes(user.roleKey));
+      : users.filter((user) => section.roles.includes(user.role));
 
   return (
     <div className="space-y-4">
       <AccountsWorkspace
         title={section.label}
         description={section.description}
-        users={filteredUsers}
+         users={filteredUsers as any}
         roles={roles}
         brands={brands}
         warehouses={warehouses}
         managers={managers}
-        roleFilter={section.slug === "all" ? undefined : section.roleKeys}
+        roleFilter={section.slug === "all" ? undefined : section.roles}
         returnTo={`/admin/accounts/${section.slug}`}
       />
 

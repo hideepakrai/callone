@@ -48,7 +48,7 @@ type DemoProduct = {
 type DemoUser = {
   email: string;
   name: string;
-  roleKey: string;
+  role: string;
   designation: string;
   phone: string;
   code: string;
@@ -255,7 +255,7 @@ const DEMO_USERS: DemoUser[] = [
   {
     email: "admin.operations@callone.local",
     name: "Operations Admin",
-    roleKey: "admin",
+    role: "admin",
     designation: "Operations Admin",
     phone: "9876500011",
     code: "ADM-OPS",
@@ -265,7 +265,7 @@ const DEMO_USERS: DemoUser[] = [
   {
     email: "manager.west@callone.local",
     name: "West Zone Manager",
-    roleKey: "manager",
+    role: "manager",
     designation: "Regional Manager",
     phone: "9876500012",
     code: "MGR-WEST",
@@ -275,7 +275,7 @@ const DEMO_USERS: DemoUser[] = [
   {
     email: "manager.north@callone.local",
     name: "North Zone Manager",
-    roleKey: "manager",
+    role: "manager",
     designation: "Regional Manager",
     phone: "9876500013",
     code: "MGR-NORTH",
@@ -285,7 +285,7 @@ const DEMO_USERS: DemoUser[] = [
   {
     email: "sales.aarav@callone.local",
     name: "Aarav Sharma",
-    roleKey: "sales_rep",
+    role: "sales_rep",
     designation: "Sales Representative",
     phone: "9876500014",
     code: "SAL-AARAV",
@@ -296,7 +296,7 @@ const DEMO_USERS: DemoUser[] = [
   {
     email: "sales.meera@callone.local",
     name: "Meera Singh",
-    roleKey: "sales_rep",
+    role: "sales_rep",
     designation: "Sales Representative",
     phone: "9876500015",
     code: "SAL-MEERA",
@@ -307,7 +307,7 @@ const DEMO_USERS: DemoUser[] = [
   {
     email: "retailer.greenfield@callone.local",
     name: "Greenfield Golf",
-    roleKey: "retailer",
+    role: "retailer",
     designation: "Retail Account",
     phone: "9876500016",
     code: "RTL-GREEN",
@@ -318,7 +318,7 @@ const DEMO_USERS: DemoUser[] = [
   {
     email: "retailer.clubhouse@callone.local",
     name: "Clubhouse Retail",
-    roleKey: "retailer",
+    role: "retailer",
     designation: "Retail Account",
     phone: "9876500017",
     code: "RTL-CLUB",
@@ -451,7 +451,7 @@ export async function ensureWorkspaceSeedData() {
   const roleMap = new Map(roles.map((role) => [role.key, role]));
 
   for (const userDefinition of DEMO_USERS) {
-    const role = roleMap.get(userDefinition.roleKey);
+    const role = roleMap.get(userDefinition.role);
     if (!role) {
       continue;
     }
@@ -463,7 +463,7 @@ export async function ensureWorkspaceSeedData() {
         $set: {
           name: userDefinition.name,
           roleId: role._id,
-          roleKey: role.key,
+          role: role.key,
           designation: userDefinition.designation,
           phone: userDefinition.phone,
           code: userDefinition.code,
@@ -741,7 +741,7 @@ export async function ensureWorkspaceSeedData() {
             retailer: {
               name: retailer.name,
               email: retailer.email,
-              role: retailer.roleKey,
+              role: retailer.role,
               code: retailer.code,
               address: retailer.address,
               gstin: retailer.gstin,
@@ -749,13 +749,13 @@ export async function ensureWorkspaceSeedData() {
             manager: {
               name: manager.name,
               email: manager.email,
-              role: manager.roleKey,
+              role: manager.role,
               code: manager.code,
             },
             salesRep: {
               name: salesRep.name,
               email: salesRep.email,
-              role: salesRep.roleKey,
+              role: salesRep.role,
               code: salesRep.code,
             },
           },
