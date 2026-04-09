@@ -50,7 +50,7 @@ export function ProductImage({ brandName, rowData, alt = "Product Image", classN
   if (!displaySrc || error) {
     return (
       <div className={`flex items-center justify-center rounded-2xl bg-[#1D1D1D] text-white/20 ${className}`}>
-        <Package2 className="h-5 w-5" />
+        <Package2 className="h-5 w-5 text-white" />
       </div>
     );
   }

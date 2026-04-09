@@ -16,6 +16,7 @@
     --surface-elevated: #d3d2d0;
     --surface-strong: #949797;
     --primary: #2f7ff4;
+    --primary-rgb: 47, 127, 244;
     --primary-strong: #1964d3;
     --border: #d3d2d0;
     --ring: rgba(47, 127, 244, 0.18);
@@ -34,6 +35,7 @@
     --surface-elevated: #2c2d2d;
     --surface-strong: #606260;
     --primary: #5d98f5;
+    --primary-rgb: 93, 152, 245;
     --primary-strong: #7bacf8;
     --border: #2c2d2d;
     --ring: rgba(93, 152, 245, 0.22);

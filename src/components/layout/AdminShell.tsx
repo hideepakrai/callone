@@ -225,7 +225,7 @@ export function AdminShell({children, user}: AdminShellProps) {
             {/* Desktop Navigation Section */}
             <div className="hidden flex-1 items-center justify-center gap-6 xl:flex">
               <div ref={megaMenuRef} className="relative shrink-0">
-                <button
+                {/* <button
                   onClick={() => setMegaMenuOpen((current) => !current)}
                   className={clsx(
                     "inline-flex h-11 w-11 items-center justify-center rounded-2xl border transition",
@@ -236,7 +236,7 @@ export function AdminShell({children, user}: AdminShellProps) {
                   aria-label="Open workspace menu"
                 >
                   <Grid2x2 size={16} />
-                </button>
+                </button> */}
 
                 <AnimatePresence>
                   {megaMenuOpen ? (

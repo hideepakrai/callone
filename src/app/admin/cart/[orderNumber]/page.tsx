@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { Tag } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { removeFromCart, updateCartItemQty, updateCartItemStock, setDiscount, setSelectedRetailer, setSelectedManager, setSelectedSalesRep, clearCart } from '@/store/slices/cart/cartSlice';
 import { fetchUsersByRole } from '@/store/slices/users/userThunks';
 import { PageHeader } from '@/components/admin/PageHeader';
@@ -325,61 +326,66 @@ export default function CartPage() {
     <GetAllProducts/>
       <OrderHydration />
       <Ordercard/>
-      <div className="space-y-6 pb-20">
-        <div className="flex items-center justify-between">
+      <div className="mx-auto max-w-[1600px] space-y-10 pb-32 pt-28 px-4 md:px-10">
+        <div className="flex items-end justify-between">
           <PageHeader
-            title={!orderNumber || orderNumber === 'new' ? 'New Order' : `Order No: #${orderNumber}`}
-            description=""
-            backHref="/admin/products"
+            title={!orderNumber || orderNumber === 'new' ? 'New Workspace Order' : `Order: #${orderNumber}`}
+            description="Processing hub for administrative verified orders and inventory allocation."
           />
-          <button className="flex items-center gap-2 rounded-xl border border-border/60 bg-background px-4 py-2 text-sm font-bold text-foreground/70 shadow-sm">
+          <button className="flex items-center gap-3 rounded-2xl border border-border/40 bg-surface px-6 py-3 text-[11px] font-black uppercase tracking-widest text-foreground/50 shadow-sm transition-all hover:bg-foreground/[0.03] hover:text-foreground">
             <Tag size={16} />
-            Add a Note
+            Append Internal Note
           </button>
         </div>
 
-        <CartHeader 
-          selectedRetailer={cart.selectedRetailer}
-          selectedManager={cart.selectedManager}
-          selectedSalesRep={cart.selectedSalesRep}
-          allRetailer={allRetailer}
-          allManager={allManager}
-          allSaleRep={allSaleRep}
-          isEditingRetailer={isEditingRetailer}
-          setIsEditingRetailer={setIsEditingRetailer}
-          isEditingManager={isEditingManager}
-          setIsEditingManager={setIsEditingManager}
-          isEditingSalesRep={isEditingSalesRep}
-          setIsEditingSalesRep={setIsEditingSalesRep}
-          onUpdateRetailer={handleUpdateRetailer}
-          onUpdateManager={handleUpdateManager}
-          onUpdateSalesRep={handleUpdateSalesRep}
-          setSelectedRetailer={(val) => dispatch(setSelectedRetailer(val))}
-          setSelectedManager={(val) => dispatch(setSelectedManager(val))}
-          setSelectedSalesRep={(val) => dispatch(setSelectedSalesRep(val))}
-        />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="space-y-10"
+        >
+          <CartHeader 
+            selectedRetailer={cart.selectedRetailer}
+            selectedManager={cart.selectedManager}
+            selectedSalesRep={cart.selectedSalesRep}
+            allRetailer={allRetailer}
+            allManager={allManager}
+            allSaleRep={allSaleRep}
+            isEditingRetailer={isEditingRetailer}
+            setIsEditingRetailer={setIsEditingRetailer}
+            isEditingManager={isEditingManager}
+            setIsEditingManager={setIsEditingManager}
+            isEditingSalesRep={isEditingSalesRep}
+            setIsEditingSalesRep={setIsEditingSalesRep}
+            onUpdateRetailer={handleUpdateRetailer}
+            onUpdateManager={handleUpdateManager}
+            onUpdateSalesRep={handleUpdateSalesRep}
+            setSelectedRetailer={(val) => dispatch(setSelectedRetailer(val))}
+            setSelectedManager={(val) => dispatch(setSelectedManager(val))}
+            setSelectedSalesRep={(val) => dispatch(setSelectedSalesRep(val))}
+          />
 
-        <CartStepper 
-          steps={STEPS}
-          activeStep={activeStep}
-          isSubmitting={isSubmitting}
-          onSubmitOrder={handleSubmitOrder}
-          onCheckAvailability={handleCheckAvailability}
-          onApproveOrder={handleApproveOrder}
-          onCompleteOrder={handleCompleteOrder}
-        />
+          <CartStepper 
+            steps={STEPS}
+            activeStep={activeStep}
+            isSubmitting={isSubmitting}
+            onSubmitOrder={handleSubmitOrder}
+            onCheckAvailability={handleCheckAvailability}
+            onApproveOrder={handleApproveOrder}
+            onCompleteOrder={handleCompleteOrder}
+          />
 
-        <CartTable 
-          items={cart.items}
-          itemErrors={itemErrors}
-          discountType={cart.discountType}
-          discountValue={cart.discountValue}
-          summary={summary}
-          onUpdateQty={handleUpdateQty}
-          // onRemoveItem={(id) => dispatch(removeFromCart(id))}
-          onSetDiscount={(type, value) => dispatch(setDiscount({ type, value }))}
-          isDisabled={activeStep >= 4}
-        />
+          <CartTable 
+            items={cart.items}
+            itemErrors={itemErrors}
+            discountType={cart.discountType}
+            discountValue={cart.discountValue}
+            summary={summary}
+            onUpdateQty={handleUpdateQty}
+            onSetDiscount={(type, value) => dispatch(setDiscount({ type, value }))}
+            isDisabled={activeStep >= 4}
+          />
+        </motion.div>
       </div>
     </>
   );
