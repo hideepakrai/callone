@@ -37,7 +37,7 @@ export const CartTable: React.FC<CartTableProps> = ({
   summary,
   onUpdateQty,
   // onRemoveItem,
-    onSetDiscount,
+     onSetDiscount,
   // onToggleDiscount,
   // onUpdateItemDiscount,
   isDisabled = false,
@@ -61,7 +61,7 @@ export const CartTable: React.FC<CartTableProps> = ({
       const amount = (item.mrp ?? 0) * qty;
       const gstRate = item.gst ?? 0;
       const lessGst = amount / (1 + gstRate / 100);
-      const discountAmt = lessGst * (discountValue / 100);
+      const discountAmt = lessGst * (item?.discount??0 / 100);
       const netBilling = lessGst - discountAmt;
       const finalBillValue = netBilling * (1 + gstRate / 100);
       
@@ -143,174 +143,180 @@ export const CartTable: React.FC<CartTableProps> = ({
 
 
   return (
-    <div className="space-y-12">
-      {/* Table Container */}
-      <div className="overflow-hidden rounded-[24px] border border-border/40 bg-background shadow-[0_25px_60px_rgba(0,0,0,0.08)]">
-        <div className="overflow-x-auto max-h-[calc(100vh-300px)] overflow-y-auto hide-scrollbar">
-          <table className="w-full border-separate border-spacing-0 text-left">
-            <thead>
-              <tr className="bg-[#111111] text-white">
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 pl-8 text-[11px] font-semibold uppercase tracking-wider text-white/60">S.No</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-white/60">Product</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-white/60">Brand</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-white/60">SKU</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-[11px] font-semibold uppercase tracking-wider text-white/60">Description</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-center text-[11px] font-semibold uppercase tracking-wider text-white/60">Qty88</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-center text-[11px] font-semibold uppercase tracking-wider text-white/60">Qty90</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-center text-[11px] font-semibold uppercase tracking-wider text-white/60">Qty</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-right text-[11px] font-semibold uppercase tracking-wider text-white/60">MRP</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-right text-[11px] font-semibold uppercase tracking-wider text-white/60">Amount</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-center text-[11px] font-semibold uppercase tracking-wider text-white/60">GST %</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-right text-[11px] font-semibold uppercase tracking-wider text-white/60">Less GST</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-center text-[11px] font-semibold uppercase tracking-wider text-white/60">Disc (%)</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-10 py-4 text-right text-[11px] font-semibold uppercase tracking-wider text-white/60">Disc Amt</th>
-                <th className="sticky top-0 z-10 bg-[#111111] px-6 py-4 text-center text-[11px] font-semibold uppercase tracking-wider text-white/60">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-transparent">
-              {cartData && cartData.length > 0 && cartData.map((item, index) => {
-                const stock88 = item?.stock88 ?? 0;
-                const stock90 = item?.stock90 ?? 0;
-                const itemId = item.id || item.sku || '';
-
-                return (
-                  <motion.tr 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    key={item.id || item.sku || index} 
-                    className="border-b border-border/60 transition-colors bg-white hover:bg-white/5 group"
-                  >
-                    <td className="border-b border-white/5 px-6 py-4 pl-8 text-[11px] font-semibold italic text-foreground/20">{index + 1}</td>
-                    <td className="border-b border-white/5 px-6 py-4">
-                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-foreground/[0.03] ring-1 ring-border/20">
-                        <ProductImage 
-                          brandName={item.brand || ""} 
-                          rowData={item} 
-                          className="h-full w-full object-cover p-1"
-                        />
-                      </div>
-                    </td>
-                    <td className="border-b border-white/5 px-6 py-4">
-                      <span className="rounded-full border border-border/70 bg-background/50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-foreground/48">
-                        {item.brand}
+     <div className="overflow-hidden rounded-[32px] border border-border/50 bg-background shadow-sm">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="bg-foreground/[0.02] text-[10px] font-bold uppercase tracking-wider text-foreground/45">
+            <th className="px-6 py-4">S.No</th>
+            <th className="px-6 py-4">Product</th>
+            <th className="px-6 py-4">Brand</th>
+            <th className="px-6 py-4">SKU</th>
+            <th className="px-6 py-4">Description</th>
+            <th className="px-6 py-4 text-center">Qty88</th>
+            <th className="px-6 py-4 text-center">Qty90</th>
+            <th className="px-6 py-4 text-center">Qty</th>
+            <th className="px-6 py-4">MRP</th>
+            <th className="px-6 py-4">Amount</th>
+            <th className="px-6 py-4 text-center">GST %</th>
+            <th className="px-6 py-4">Less GST</th>
+            <th className="px-6 py-4 text-center">Disc (%)</th>
+            <th className="px-6 py-4">Disc Amt</th>
+            <th className="px-6 py-4">Net Billings</th>
+            <th className="px-6 py-4">Final Bill Value</th>
+            <th className="px-6 py-4 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border/40">
+          { cartData && cartData.length > 0 && cartData.map((item, index) => {
+            const stock88 = item?.stock88 ?? 0;
+            const stock90 = item?.stock90 ?? 0;
+            const itemId = item.sku || '';
+           return (
+              <tr key={item.sku || index} className="group hover:bg-foreground/[0.01] transition-colors">
+                <td className="px-6 py-4 text-xs font-bold text-foreground/40">{index + 1}</td>
+                <td className="px-6 py-4">
+                  <div className="relative h-10 w-10 overflow-hidden rounded-lg border border-border/40 bg-foreground/[0.02]">
+                    <ProductImage 
+                      brandName={item.brand || ""} 
+                      rowData={item} 
+                      className="h-full w-full"
+                    />
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-[10px] font-bold text-foreground/70">{item.brand}</td>
+                <td className="px-6 py-4 text-[10px] font-black tracking-tight">{item.sku}</td>
+                <td className="px-6 py-4 text-[10px] font-medium text-foreground/50 max-w-[150px] truncate">
+                  {item.description ?? ""}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className={clsx(
+                      "flex items-center gap-1 rounded-lg border p-0.5 transition-all",
+                      (item.qty88 || 0) > stock88 ? "border-red-500 bg-red-50" : "border-border/60 bg-foreground/5",
+                      stock88 === 0 && (item.qty88 || 0) === 0 && "opacity-50 grayscale"
+                    )}>
+                      <span className="px-2 text-[10px] font-bold text-foreground/40 min-w-[24px] text-center">
+                        {stock88}
                       </span>
-                    </td>
-                    <td className="border-b border-white/5 px-6 py-4 text-[11px] font-semibold tracking-tight text-foreground">{item.sku}</td>
-                    <td className="border-b border-white/5 px-6 py-4">
-                      <p className="max-w-[140px] truncate text-[10px] font-medium leading-relaxed text-foreground/50 group-hover:text-foreground/70 transition-colors">
-                        {item.description}
-                      </p>
-                    </td>
-                    <td className="border-b border-white/5 px-6 py-4">
-                      <div className="flex flex-col items-center">
-                        <div className={clsx(
-                          "flex items-center gap-1 rounded-xl border p-1 transition-all",
-                          (item.qty88 || 0) > stock88 ? "border-red-500 bg-red-500/10" : "border-border/60 bg-foreground/[0.02]",
-                        )}>
-                          <span className="min-w-[20px] text-center text-[10px] font-semibold text-foreground/25">
-                            {stock88}
-                          </span>
-                          <div className="h-3 w-[1px] bg-border/40" />
-                          <input
-                            type="number"
-                            value={item.qty88}
-                            disabled={isDisabled}
-                            onChange={(e) => onUpdateQty(itemId, 'qty88', parseInt(e.target.value) || 0, stock88)}
-                            className="w-10 bg-transparent text-center text-[11px] font-bold text-foreground outline-none"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="border-b border-white/5 px-6 py-4">
-                      <div className="flex flex-col items-center">
-                        <div className={clsx(
-                          "flex items-center gap-1 rounded-xl border p-1 transition-all",
-                          (item.qty90 || 0) > stock90 ? "border-red-500 bg-red-500/10" : "border-border/60 bg-foreground/[0.02]",
-                        )}>
-                          <span className="min-w-[20px] text-center text-[10px] font-semibold text-foreground/25">
-                            {stock90}
-                          </span>
-                          <div className="h-3 w-[1px] bg-border/40" />
-                          <input
-                            type="number"
-                            value={item.qty90}
-                            disabled={isDisabled}
-                            onChange={(e) => onUpdateQty(itemId, 'qty90', parseInt(e.target.value) || 0, stock90)}
-                            className="w-10 bg-transparent text-center text-[11px] font-bold text-foreground outline-none"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="border-b border-white/5 px-6 py-4 text-center text-xs font-semibold text-primary">{item.qty}</td>
-                    <td className="border-b border-white/5 px-6 py-4 text-right font-mono text-[12px] font-semibold text-foreground/70 group-hover:text-foreground transition-colors">₹{item.mrp?.toLocaleString()}</td>
-                    <td className="border-b border-white/5 px-6 py-4 text-right font-mono text-[12px] font-semibold text-foreground/90 group-hover:text-foreground transition-colors">₹{item.amount?.toLocaleString()}</td>
-                    <td className="border-b border-white/5 px-6 py-4 text-center text-[12px] font-semibold text-foreground/30">{item.gst}%</td>
-                    <td className="border-b border-white/5 px-6 py-4 text-right font-mono text-[12px] font-semibold text-foreground/60 group-hover:text-foreground transition-colors">₹{item.lessGst?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
-                    <td className="border-b border-white/5 px-6 py-4 text-center text-[12px] font-semibold text-foreground/30">{discountValue}%</td>
-                    <td className="border-b border-white/5 px-10 py-4 text-right font-mono text-[12px] font-semibold text-rose-500/80 group-hover:text-rose-500 transition-colors">₹{item.discountAmt?.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
-                    <td className="border-b border-white/5 px-6 py-4">
-                      <div className="flex justify-center">
-                        <button
-                          onClick={() => handleRemoveItem(itemId)}
-                          disabled={isDisabled}
-                          className="rounded-lg p-2 text-foreground/10 transition-all hover:bg-red-500/20 hover:text-red-500 disabled:opacity-30"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                      <div className="w-[1px] h-3 bg-border/40" />
+                      <input
+                        type="number"
+                        value={item.qty88}
+                        disabled={isDisabled || (stock88 === 0 && !itemErrors[item.id || ""])}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
+                          onUpdateQty(itemId, 'qty88', val, stock88);
+                        }}
+                        className="w-10 bg-transparent py-1 text-center text-[10px] font-bold outline-none disabled:cursor-not-allowed"
+                      />
+                    </div>
+                    {(item.qty88 || 0) > stock88 && (
+                      <p className="mt-1 text-[8px] font-bold text-red-500 uppercase">Out of stock</p>
+                    )}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className={clsx(
+                      "flex items-center gap-1 rounded-lg border p-0.5 transition-all",
+                      (item.qty90 || 0) > stock90 ? "border-red-500 bg-red-50" : "border-border/60 bg-foreground/5",
+                      stock90 === 0 && (item.qty90 || 0) === 0 && "opacity-50 grayscale"
+                    )}>
+                      <span className="px-2 text-[10px] font-bold text-foreground/40 min-w-[24px] text-center">
+                        {stock90}
+                      </span>
+                      <div className="w-[1px] h-3 bg-border/40" />
+                      <input
+                        type="number"
+                        value={item.qty90}
+                        disabled={isDisabled || (stock90 === 0 && !itemErrors[item.id || ""])}
+                        onChange={(e) => {
+                          const val = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
+                          onUpdateQty(itemId, 'qty90', val, stock90);
+                        }}
+                        className="w-10 bg-transparent py-1 text-center text-[10px] font-bold outline-none disabled:cursor-not-allowed"
+                      />
+                    </div>
+                    {(item.qty90 || 0) > stock90 && (
+                      <p className="mt-1 text-[8px] font-bold text-red-500 uppercase">Out of stock</p>
+                    )}
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-center text-[10px] font-bold text-primary">{item.qty}</td>
+                <td className="px-6 py-4 text-[10px] font-bold text-foreground/70 text-right">₹{item.mrp?.toLocaleString() ?? 0}</td>
+                <td className="px-6 py-4 text-[10px] font-bold text-foreground/70 text-right">₹{item.amount?.toLocaleString() ?? 0}</td>
+                <td className="px-6 py-4 text-[10px] font-bold text-foreground/40 text-center">{item.gstRate}%</td>
+                <td className="px-6 py-4 text-[10px] font-bold text-foreground/60 text-right">₹{item.lessGst?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2 justify-center">
+                    <input
+                      type="number"
+                      value={item.discount}
+                      disabled={isDisabled || !item.isIndividualDiscount}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 0;
+                        handleUpdateItemDiscount?.(itemId, val);
+                      }}
+                      className={clsx(
+                        "w-12 rounded-lg border px-2 py-1.5 text-center text-[10px] font-bold outline-none transition-all",
+                        item.isIndividualDiscount 
+                          ? "border-primary bg-primary/5 text-primary" 
+                          : "border-border/60 bg-foreground/5 text-foreground/40"
+                      )}
+                    />
+                    <button
+                      onClick={() => handleToggleDiscount?.(itemId)}
+                      // disabled={isDisabled}
+                      className={clsx(
+                        "relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none",
+                        item.isIndividualDiscount ? "bg-primary" : "bg-foreground/20"
+                      )}
+                    >
+                      <span
+                        className={clsx(
+                          "inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform",
+                          item.isIndividualDiscount ? "translate-x-5" : "translate-x-0.5"
+                        )}
+                      />
+                    </button>
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-[10px] font-bold text-red-500/80 text-right">₹{item.discountAmt?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="px-6 py-4 text-[10px] font-bold text-foreground/80 text-right">₹{item.netBilling?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="px-6 py-4 text-[10px] font-black text-primary text-right">₹{item.finalBillValue?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center justify-center">
+                    <button
+                      onClick={() => handleRemoveItem(itemId)}
+                      disabled={isDisabled}
+                      className="rounded-lg p-1.5 text-foreground/20 hover:bg-red-500/10 hover:text-red-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
 
-      {/* Summary Section */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] gap-8">
-        {/* Left Side: Settings/Options */}
-        <div className="flex flex-wrap gap-4 items-start">
-          <div className="rounded-3xl border border-border/40 bg-white p-6 shadow-sm flex items-center gap-6 backdrop-blur-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#111111] text-white">
-              <Percent size={20} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-foreground/30">Discount Mode</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <PremiumSelect
-                  options={discountOptions}
-                  value={discountType}
-                  disabled={isDisabled}
-                  onChange={(val) => onSetDiscount(val as any, discountValue)}
-                  triggerClassName="!py-2 !rounded-xl !border-border/60 !bg-white/5 !text-xs !font-bold"
-                  className="min-w-[140px]"
-                />
-                <div className="relative">
-                  <input
-                    type="number"
-                    value={discountValue}
-                    disabled={isDisabled}
-                    onChange={(e) => onSetDiscount(discountType as any, parseInt(e.target.value) || 0)}
-                    className="w-16 rounded-xl border border-border/60 bg-white/5 px-4 py-2 text-center text-xs font-bold outline-none transition-all hover:bg-white/10"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-foreground/20">%</span>
-                </div>
-              </div>
-            </div>
+      {/* Footer / Summary Section */}
+      <div className="flex flex-wrap items-start justify-between gap-8 bg-foreground/[0.02] p-8">
+        <div className="flex items-center gap-4 bg-background p-3 rounded-[24px] border border-border/60 shadow-sm">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/40 block">Discount Mode</span>
+            <select
+              value={discountType}
+              disabled={isDisabled}
+              onChange={(e) => onSetDiscount(e.target.value as any, discountValue)}
+              className="rounded-lg border-none bg-foreground/5 px-3 py-1.5 text-xs font-bold outline-none disabled:cursor-not-allowed"
+            >
+              <option value="inclusive">Inclusive</option>
+              <option value="exclusive">Exclusive</option>
+                 <option value="flat">Flat</option>
+            </select>
           </div>
-
-          <div className="rounded-3xl border border-border/40 bg-white p-6 shadow-sm flex items-center gap-2 backdrop-blur-sm">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-foreground/40">
-              <Calculator size={20} />
-            </div>
-            <div className="space-y-0.5">
-              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/30">Auto Calculations</span>
-              <p className="text-[10px] font-bold text-foreground/50">Real-time status sync</p>
-            </div>
           <div className="h-10 w-[1px] bg-border/40" />
           <div className="flex items-center gap-2">
             <input
@@ -323,42 +329,20 @@ export const CartTable: React.FC<CartTableProps> = ({
             <span className="text-xs font-bold text-foreground/40">%</span>
           </div>
         </div>
-        </div>
-        {/* Right Side: Final Totals */}
-        <div className="rounded-[32px] overflow-hidden border border-border/40 bg-background shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
-          <div className="bg-[#111111] p-6 text-white flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
-                <ShoppingBag size={18} />
-              </div>
-              <span className="text-xs font-bold uppercase tracking-widest">Order Summary</span>
-            </div>
-            <span className="text-[10px] font-medium text-white/70">Active Cart Session</span>
+
+        <div className="w-full max-w-[320px] space-y-4">
+          <div className="flex items-center justify-between text-xs font-bold text-foreground/60">
+            <span>Sub Total:</span>
+            <span className="text-foreground font-black">₹{subtotal.toLocaleString()}</span>
           </div>
-          
-          <div className="p-8 space-y-6">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-foreground/40">
-                <span>Gross Value</span>
-                <span className="font-mono text-foreground tracking-tight">₹{subtotal.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-foreground/40">
-                <span>Discount Applied</span>
-                <span className="font-mono text-rose-500 tracking-tight">- ₹{totalDiscount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-              </div>
-            </div>
-            
-            <div className="h-px w-full bg-border/40" />
-            
-            <div className="space-y-2 pt-2 border-t-2 border-t-primary">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/20">Total Payable Amount</span>
-              <div className="flex items-baseline justify-between">
-                <span className="text-4xl font-black tracking-tighter text-[#111111] dark:text-white">
-                  ₹{finalTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                </span>
-                <span className="text-[10px] font-black uppercase text-foreground/40 tracking-widest">INR</span>
-              </div>
-            </div>
+          <div className="flex items-center justify-between text-xs font-bold text-foreground/60">
+            <span>Discount:</span>
+            <span className="text-red-500">₹{totalDiscount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+          <div className="h-[1px] bg-border/60" />
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-bold text-foreground/80">Total Net Bill:</span>
+            <span className="text-xl font-black text-primary">₹{finalTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         </div>
       </div>

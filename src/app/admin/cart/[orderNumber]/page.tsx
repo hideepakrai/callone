@@ -403,7 +403,7 @@ export default function CartPage() {
           summary={summary}
           onUpdateQty={handleUpdateQty}
           // onRemoveItem={(id) => dispatch(removeFromCart(id))}
-          onSetDiscount={(type, value) => dispatch(setDiscount({ type, value }))}
+           onSetDiscount={(type, value) => dispatch(setDiscount({ type, value }))}
           isDisabled={activeStep >= 4}
         />
       </motion.div>
