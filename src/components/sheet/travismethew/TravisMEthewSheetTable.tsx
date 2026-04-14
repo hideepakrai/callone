@@ -6,41 +6,17 @@ import { DataTable } from "@/components/admin/DataTable";
 import { RootState } from "@/store";
 import { ITravisMethewSheetItem } from "@/store/slices/sheet/travismethew/TravisMethewSheetType";
 import { usePathname } from "next/navigation";
+import { useMemo, useState, useCallback } from "react";
+import { 
+  ColumnFilterData, 
+  FilterOperator, 
+  SelectionFilter, 
+  FloatingFilterPopup 
+} from "./ColumnFilters";
 
 type SheetColumnKey = keyof ITravisMethewSheetItem | "index";
 
-const TRAVIS_SHEET_COLUMNS: Array<{ label: string; key: SheetColumnKey }> = [
-  { label: "#", key: "index" },
-  { label: "SKU", key: "SKU" },
-  { label: "Option", key: "Option" },
-  { label: "Desc", key: "desc" },
-  { label: "SZ", key: "SZ" },
-  { label: "Category", key: "category" },
-  { label: "Season", key: "season" },
-  { label: "Line", key: "line" },
-  { label: "Color", key: "color" },
-  { label: "MRP", key: "mrp" },
-  { label: "Image", key: "image" },
-  { label: "TTL Qty", key: "TTL Qty" },
-  { label: "Line status", key: "Line status" },
-  { label: "Size Roll", key: "Size Roll" },
-  { label: "KAPIL", key: "KAPIL" },
-  { label: "MOHIT", key: "MOHIT" },
-  { label: "PUNITH", key: "PUNITH" },
-  { label: "SANDEEP", key: "SANDEEP" },
-  { label: "SHASHI", key: "SHASHI" },
-  { label: "SHIVAM", key: "SHIVAM" },
-  { label: "Blk", key: "Blk" },
-  { label: "Avl", key: "Avl" },
-  { label: "UPC", key: "UPC" },
-  { label: "TTL", key: "TTL" },
-  { label: "ATJ", key: "ATJ" },
-  { label: "B CLB", key: "B CLB" },
-  { label: "Overall", key: "Overall" },
-  { label: "ATJ_1", key: "ATJ_1" },
-  { label: "Created", key: "createdAt" },
-  { label: "Updated", key: "updatedAt" },
-];
+
 
 function formatSheetValue(key: SheetColumnKey, value: unknown) {
   if (key === "index") {
@@ -61,11 +37,178 @@ function formatSheetValue(key: SheetColumnKey, value: unknown) {
   return String(value);
 }
 
+function getRowValue(row: ITravisMethewSheetItem, key: string) {
+  if (!key || key === "index") return undefined;
+
+  const source = row as Record<string, any>;
+
+  // 1. Direct match
+  if (key in source) return source[key];
+
+  // 2. Case-insensitive match
+  const rowKeys = Object.keys(source);
+  const matchedKey = rowKeys.find((rk) => rk.toLowerCase() === key.toLowerCase());
+  if (matchedKey) return source[matchedKey];
+
+  // 3. Common aliases mapping
+  const normalizedKey = key.toLowerCase().trim();
+  const aliases: Record<string, string[]> = {
+    desc: ["description", "desc", "product description", "details"],
+    SKU: ["sku", "style code", "style", "item code", "code"],
+    SZ: ["size", "sz", "size roll", "fit", "sze"],
+    mrp: ["mrp", "price", "rate", "cost"],
+    color: ["color", "colour", "shade", "color code"],
+    category: ["category", "cat", "product type"],
+    season: ["season", "ss", "fw", "collection"],
+  };
+
+  for (const [realKey, aliasList] of Object.entries(aliases)) {
+    if (aliasList.includes(normalizedKey)) {
+      if (realKey in source) return source[realKey];
+      // Try case-insensitive alias search if direct alias key not found
+      const foundKey = rowKeys.find((rk) => rk.toLowerCase() === realKey.toLowerCase());
+      if (foundKey) return source[foundKey];
+    }
+  }
+
+  return undefined;
+}
+
 export default function TravisMEthewSheetTable() {
   const { allTravisSheet, isLoading, error } = useSelector((state: RootState) => state.travisSheet);
-const {allAttribute}= useSelector((state:RootState)=>state.attribute)
+  const { allAttribute } = useSelector((state: RootState) => state.attribute);
 
-const pathname= usePathname()
+  const [columnFilters, setColumnFilters] = useState<Record<string, ColumnFilterData>>({});
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+
+  const handleToggleRow = useCallback((key: string) => {
+    setSelectedKeys(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }, []);
+
+
+  const handleFilterChange = useCallback((key: string, data: Partial<ColumnFilterData>) => {
+    setColumnFilters(prev => ({
+      ...prev,
+      [key]: {
+        ...(prev[key] || { selection: '(All)', operator: 'contains', searchValue: '' }),
+        ...data
+      }
+    }));
+  }, []);
+
+  const currentAttribute = useMemo(() => {
+    return allAttribute.find((attr) => attr.name === "Travis Mathew sheet")
+  }, [allAttribute])
+
+  const filteredRows = useMemo(() => {
+    return allTravisSheet.filter(row => {
+      return Object.entries(columnFilters).every(([key, filter]) => {
+        const value = getRowValue(row, key);
+        
+        // 1. Selection match
+        if (filter.selection !== '(All)' && String(value ?? '') !== filter.selection) {
+          return false;
+        }
+        
+        // 2. Operator match
+        if (filter.searchValue || filter.operator === 'blank' || filter.operator === 'notBlank') {
+          const strValue = String(value ?? '').toLowerCase();
+          const lowerSearch = filter.searchValue.toLowerCase();
+          
+          switch (filter.operator) {
+            case 'contains': if(!strValue.includes(lowerSearch)) return false; break;
+            case 'notContains': if(strValue.includes(lowerSearch)) return false; break;
+            case 'equals': if(strValue !== lowerSearch) return false; break;
+            case 'notEquals': if(strValue === lowerSearch) return false; break;
+            case 'startsWith': if(!strValue.startsWith(lowerSearch)) return false; break;
+            case 'endsWith': if(!strValue.endsWith(lowerSearch)) return false; break;
+            case 'blank': if(value && value !== '') return false; break;
+            case 'notBlank': if(!value || value === '') return false; break;
+          }
+        }
+        
+        return true;
+      });
+    });
+  }, [allTravisSheet, columnFilters]);
+
+  const handleToggleAll = useCallback(() => {
+    setSelectedKeys(prev => {
+      if (prev.size === filteredRows.length && filteredRows.length > 0) return new Set();
+      return new Set(filteredRows.map((row, index) => row.SKU || row.Option || String(index)));
+    });
+  }, [filteredRows]);
+
+  const hasActiveFilters = useMemo(() => {
+    return Object.values(columnFilters).some(
+      f => f.selection !== '(All)' || f.searchValue !== '' || f.operator === 'blank' || f.operator === 'notBlank'
+    );
+  }, [columnFilters]);
+
+  const handleClearFilters = useCallback(() => {
+    setColumnFilters({});
+  }, []);
+
+  const columns = useMemo(() => {
+    const rawCols = currentAttribute?.attributes && currentAttribute.attributes.length > 0
+      ? currentAttribute.attributes
+          .filter((attr) => attr.show !== false && attr.key !== "index" && attr.label !== "#")
+          .map((attr) => ({
+            label: attr.label || attr.key || "",
+            key: (attr.key || "") as SheetColumnKey,
+          }))
+      : [];
+
+    const fullCols = [
+      { 
+        label: (
+          <input
+            type="checkbox"
+            checked={selectedKeys.size > 0 && selectedKeys.size === filteredRows.length}
+            onChange={handleToggleAll}
+            className="h-4 w-4 rounded border-white/20 bg-white/5 accent-primary"
+          />
+        ), 
+        key: "selection" as any 
+      },
+      { label: "#", key: "index" as SheetColumnKey }, 
+      ...rawCols
+    ];
+
+    return fullCols.map(col => ({
+      ...col,
+      renderFilter: (label: React.ReactNode) => {
+        if (col.key === "index" || col.key === "selection") return null;
+
+        const uniqueValues = Array.from(new Set(allTravisSheet.map(row => String(getRowValue(row, col.key) ?? ''))))
+          .filter(Boolean)
+          .sort()
+          .slice(0, 100);
+
+        return (
+          <div className="flex items-center gap-1.5 pt-1">
+            <SelectionFilter
+              columnKey={col.key}
+              uniqueValues={uniqueValues}
+              currentFilter={columnFilters[col.key] || { selection: '(All)', operator: 'contains', searchValue: '' }}
+              onFilterChange={handleFilterChange}
+            />
+            <FloatingFilterPopup
+              columnKey={col.key}
+              currentFilter={columnFilters[col.key] || { selection: '(All)', operator: 'contains', searchValue: '' }}
+              onFilterChange={handleFilterChange}
+            />
+          </div>
+        );
+      }
+    }));
+  }, [currentAttribute, allTravisSheet, columnFilters, handleFilterChange, selectedKeys, filteredRows, handleToggleAll]);
+
 
 
   return (
@@ -78,7 +221,17 @@ const pathname= usePathname()
           </p>
         </div>
 
-        <div className="flex items-center gap-3 text-sm text-foreground/56">
+        <div className="flex items-center gap-3">
+          {hasActiveFilters && (
+            <button
+              onClick={handleClearFilters}
+              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              Clear filters
+            </button>
+          )}
+
+          <div className="flex items-center gap-3 text-sm text-foreground/56">
           {isLoading ? (
             <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/60">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -86,22 +239,22 @@ const pathname= usePathname()
             </span>
           ) : (
             <span className="rounded-full border border-border/60 bg-background px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/60">
-              {allTravisSheet.length} Rows
+              {filteredRows.length} of {allTravisSheet.length} Rows
             </span>
           )}
         </div>
       </div>
-
+      </div>
       {error ? (
         <div className="rounded-[20px] border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-200">
           {error}
         </div>
       ) : null}
 
-      <DataTable headers={TRAVIS_SHEET_COLUMNS.map((column) => column.label)}>
-        {isLoading && allTravisSheet.length === 0 ? (
+      <DataTable headers={columns}>
+        {isLoading && filteredRows.length === 0 ? (
           <tr>
-            <td colSpan={TRAVIS_SHEET_COLUMNS.length} className="px-6 py-14 text-center">
+            <td colSpan={columns.length} className="px-6 py-14 text-center">
               <div className="mx-auto flex max-w-md flex-col items-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-[22px] bg-[#1a1a1a] text-white">
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -113,13 +266,26 @@ const pathname= usePathname()
               </div>
             </td>
           </tr>
-        ) : allTravisSheet.length > 0 ? (
-          allTravisSheet.map((row, index) => {
+        ) : filteredRows.length > 0 ? (
+          filteredRows.map((row, index) => {
             const rowKey = row.SKU || row.Option || String(index);
 
             return (
               <tr key={rowKey}>
-                {TRAVIS_SHEET_COLUMNS.map((column) => {
+                {columns.map((column) => {
+                  if (column.key === "selection" as any) {
+                    return (
+                      <td key={`${rowKey}-selection`} className="whitespace-nowrap border-b border-border/40 px-4 py-3 align-top">
+                        <input
+                          type="checkbox"
+                          checked={selectedKeys.has(rowKey)}
+                          onChange={() => handleToggleRow(rowKey)}
+                          className="h-4 w-4 rounded border-white/20 bg-white/5 accent-primary"
+                        />
+                      </td>
+                    );
+                  }
+
                   if (column.key === "index") {
                     return (
                       <td key={`${rowKey}-index`} className="whitespace-nowrap border-b border-border/40 px-4 py-3 align-top text-xs font-semibold text-foreground/60">
@@ -128,7 +294,7 @@ const pathname= usePathname()
                     );
                   }
 
-                  const value = row[column.key as keyof ITravisMethewSheetItem];
+                  const value = getRowValue(row, column.key);
                   const cellValue = formatSheetValue(column.key, value);
                   const isDescription = column.key === "desc";
 
@@ -151,7 +317,7 @@ const pathname= usePathname()
           })
         ) : (
           <tr>
-            <td colSpan={TRAVIS_SHEET_COLUMNS.length} className="px-6 py-14 text-center">
+            <td colSpan={columns.length} className="px-6 py-14 text-center">
               <div className="mx-auto flex max-w-md flex-col items-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-[22px] bg-[#1a1a1a] text-white">
                   <Package2 className="h-5 w-5" />
