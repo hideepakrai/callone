@@ -11,6 +11,7 @@ type CallCheckGridProps = {
   defaultColDef: ColDef<CallCheckRow>;
   isDarkGrid: boolean;
   onCellValueChanged: (params: CellValueChangedEvent<CallCheckRow>) => void;
+  onFilterChanged?: (event: any) => void;
 };
 
 export function CallCheckGrid({
@@ -20,6 +21,7 @@ export function CallCheckGrid({
   defaultColDef,
   isDarkGrid,
   onCellValueChanged,
+  onFilterChanged,
 }: CallCheckGridProps) {
   return (
     <section className="premium-card overflow-hidden rounded-[28px]">
@@ -57,6 +59,7 @@ export function CallCheckGrid({
           rowHeight={38}
           headerHeight={40}
           onCellValueChanged={onCellValueChanged}
+          onFilterChanged={onFilterChanged}
         />
       </div>
     </section>

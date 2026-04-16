@@ -1,20 +1,20 @@
 'use client';
 
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import {AgGridReact} from "ag-grid-react";
-import {AllCommunityModule, ColDef, CellValueChangedEvent, ModuleRegistry, ValueFormatterParams} from "ag-grid-community";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { AgGridReact } from "ag-grid-react";
+import { AllCommunityModule, ColDef, CellValueChangedEvent, ModuleRegistry, ValueFormatterParams } from "ag-grid-community";
 import * as XLSX from "xlsx";
-import {FileSpreadsheet, Loader2} from "lucide-react";
-import {CallCheckDropzone} from "@/components/call-check/CallCheckDropzone";
-import {CallCheckEmptyState} from "@/components/call-check/CallCheckEmptyState";
-import {CallCheckGrid} from "@/components/call-check/CallCheckGrid";
-import {CallCheckSheetTabs} from "@/components/call-check/CallCheckSheetTabs";
-import {CallCheckToolbar} from "@/components/call-check/CallCheckToolbar";
-import {CallCheckSaveModal} from "@/components/call-check/CallCheckSaveModal";
+import { FileSpreadsheet, Loader2 } from "lucide-react";
+import { CallCheckDropzone } from "@/components/call-check/CallCheckDropzone";
+import { CallCheckEmptyState } from "@/components/call-check/CallCheckEmptyState";
+import { CallCheckGrid } from "@/components/call-check/CallCheckGrid";
+import { CallCheckSheetTabs } from "@/components/call-check/CallCheckSheetTabs";
+import { CallCheckToolbar } from "@/components/call-check/CallCheckToolbar";
+import { CallCheckSaveModal } from "@/components/call-check/CallCheckSaveModal";
 
-import {UniqueValueFloatingFilter} from "@/components/call-check/UniqueValueFloatingFilter";
-import type {CallCheckDataset, CallCheckRow} from "@/components/call-check/types";
+import { UniqueValueFloatingFilter } from "@/components/call-check/UniqueValueFloatingFilter";
+import type { CallCheckDataset, CallCheckRow } from "@/components/call-check/types";
 import ImportStatusPanel, { ImportIssue, ImportStatus, ImportSummary } from "../products/importFile/ImportStatusPanel";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store";
@@ -41,7 +41,7 @@ function buildImageUrl(baseSku: string) {
   return `https://picsum.photos/seed/${encodeURIComponent(baseSku)}/50/50`;
 }
 
-function ImageCellRenderer(params: {data?: CallCheckRow}) {
+function ImageCellRenderer(params: { data?: CallCheckRow }) {
   const keys = Object.keys(params.data ?? {}).filter((key) => key !== "_id" && key !== "imageUrl");
   const baseSkuKey = keys.find((key) => key.toLowerCase().includes("base")) || keys[1] || keys[0];
   const baseSku = String(params.data?.[baseSkuKey] ?? "").trim();
@@ -110,7 +110,7 @@ export function CallCheckWorkspace({
 
   const { currentBrand } = useSelector((state: RootState) => state.brand);
   const { currentAttribute } = useSelector((state: RootState) => state.attribute);
-   const { travismathew } = useSelector((state: RootState) => state.travisMathew);
+  const { travismathew } = useSelector((state: RootState) => state.travisMathew);
   const { ogio } = useSelector((state: RootState) => state.ogio);
   const { hardgoods } = useSelector((state: RootState) => state.hardgoods);
   const { softgoods } = useSelector((state: RootState) => state.softgoods);
@@ -126,7 +126,7 @@ export function CallCheckWorkspace({
         nextParams.delete("sheet");
       }
       const query = nextParams.toString();
-      router.replace(query ? `${pathname}?${query}` : pathname, {scroll: false});
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
     [pathname, router, searchParams]
   );
@@ -139,9 +139,17 @@ export function CallCheckWorkspace({
       resizable: true,
       sortable: true,
       editable: true,
+      headerClass: (params) => {
+        const filterModel = params.api.getFilterModel();
+        return filterModel[params.colDef.field || ""] ? "filter-active" : "";
+      },
     }),
     []
   );
+
+  const handleFilterChanged = useCallback((params: any) => {
+    params.api.refreshHeader();
+  }, []);
 
   const setGridData = useCallback((rows: CallCheckRow[], cols: ColDef<CallCheckRow>[]) => {
     setRowData(rows);
@@ -160,7 +168,7 @@ export function CallCheckWorkspace({
         floatingFilterComponentParams: {
           uniqueValues: uniqueVals[field] || [],
         },
-        filterParams: {buttons: ["reset", "apply"], closeOnApply: true},
+        filterParams: { buttons: ["reset", "apply"], closeOnApply: true },
         valueFormatter,
       }) satisfies ColDef<CallCheckRow>,
     []
@@ -212,7 +220,7 @@ export function CallCheckWorkspace({
         };
 
         const uniqueVals = payload.dataset.uniqueValues || {};
-       // setCurrentUniqueValues(uniqueVals);
+        // setCurrentUniqueValues(uniqueVals);
 
         setDatasets((current) => {
           if (current.some((item) => item.id === payload.dataset.id)) {
@@ -224,7 +232,7 @@ export function CallCheckWorkspace({
         setSheets([payload.dataset.name]);
         setActiveSheet(payload.dataset.name);
         setActiveDatasetSlug(payload.dataset.slug);
-        
+
         setGridData(payload.rows, buildColumnsFromObjects(payload.rows, uniqueVals));
         syncSheetParam(payload.dataset.slug);
       } catch (error) {
@@ -245,7 +253,7 @@ export function CallCheckWorkspace({
 
   const processRowsFromSheet = useCallback((rawData: unknown[][], uniqueVals: Record<string, string[]> = {}) => {
     if (!rawData.length) {
-      return {rows: [] as CallCheckRow[], cols: [] as ColDef<CallCheckRow>[]};
+      return { rows: [] as CallCheckRow[], cols: [] as ColDef<CallCheckRow>[] };
     }
 
     let headerRowIndex = 0;
@@ -312,7 +320,7 @@ export function CallCheckWorkspace({
           uniqueVals,
           isDate
             ? ((params: ValueFormatterParams) =>
-                params.value ? new Date(params.value as string | number | Date).toLocaleDateString() : "") as never
+              params.value ? new Date(params.value as string | number | Date).toLocaleDateString() : "") as never
             : undefined
         )
       );
@@ -326,19 +334,19 @@ export function CallCheckWorkspace({
       return output;
     });
 
-    return {rows, cols};
+    return { rows, cols };
   }, [buildUniqueValueFilterColumn]);
 
   const loadSheetData = useCallback(
     (nextWorkbook: XLSX.WorkBook, name: string) => {
       const worksheet = nextWorkbook.Sheets[name];
-      const rawData = XLSX.utils.sheet_to_json(worksheet, {header: 1, defval: null}) as unknown[][];
-      
+      const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: null }) as unknown[][];
+
       // We need to compute unique values FIRST to pass them to processRowsFromSheet
       const previewProcessed = processRowsFromSheet(rawData);
       const computed: Record<string, string[]> = {};
       const fields = previewProcessed.cols.map((c) => String(c.field ?? "")).filter((f) => f && f !== "imageUrl");
-      
+
       fields.forEach((field) => {
         const values = new Set<string>();
         previewProcessed.rows.forEach((row) => {
@@ -351,7 +359,7 @@ export function CallCheckWorkspace({
           computed[field] = Array.from(values).sort();
         }
       });
-     // setCurrentUniqueValues(computed);
+      // setCurrentUniqueValues(computed);
 
       const processed = processRowsFromSheet(rawData, computed);
 
@@ -371,7 +379,7 @@ export function CallCheckWorkspace({
       reader.onload = (event) => {
         const result = event.target?.result;
         try {
-          const nextWorkbook = XLSX.read(result, {type: "binary", cellDates: true});
+          const nextWorkbook = XLSX.read(result, { type: "binary", cellDates: true });
           setWorkbook(nextWorkbook);
           setSheets(nextWorkbook.SheetNames);
           if (nextWorkbook.SheetNames.length) {
@@ -493,7 +501,7 @@ export function CallCheckWorkspace({
               }))
             );
           }
-          
+
           setProgress(Math.min(100, Math.round(((index + chunk.length) / totalRows) * 100)));
           setSummary({
             totalRows,
@@ -592,7 +600,7 @@ export function CallCheckWorkspace({
               }))
             );
           }
-          
+
           setProgress(Math.min(100, Math.round(((index + chunk.length) / totalRows) * 100)));
           setSummary({
             totalRows,
@@ -691,7 +699,7 @@ export function CallCheckWorkspace({
               }))
             );
           }
-          
+
           setProgress(Math.min(100, Math.round(((index + chunk.length) / totalRows) * 100)));
           setSummary({
             totalRows,
@@ -787,7 +795,7 @@ export function CallCheckWorkspace({
               }))
             );
           }
-          
+
           setProgress(Math.min(100, Math.round(((index + chunk.length) / totalRows) * 100)));
           setSummary({
             totalRows,
@@ -879,7 +887,7 @@ export function CallCheckWorkspace({
               }))
             );
           }
-          
+
           setProgress(Math.min(100, Math.round(((index + chunk.length) / totalRows) * 100)));
           setSummary({
             totalRows,
@@ -925,35 +933,35 @@ export function CallCheckWorkspace({
   }, [dispatch, rowData, allTravisSheet]);
 
 
-   
+
   const saveToDb = useCallback(async (selectedCollections: string[] = []) => {
     if (!rowData.length) {
       return;
     }
-    console.log("selectedCollections-->",selectedCollections)
-      console.log("rowData-->",rowData)
-      switch(selectedCollections[0]){
-        case "product_travis":  
-            void handleTravisImport();
-            break;
+    console.log("selectedCollections-->", selectedCollections)
+    console.log("rowData-->", rowData)
+    switch (selectedCollections[0]) {
+      case "product_travis":
+        void handleTravisImport();
+        break;
 
-        case "product_ogio":  
-            void handleOgioImport();
-            break;
+      case "product_ogio":
+        void handleOgioImport();
+        break;
 
-        case "product_hardgoods":
-            void handleHardGoodImport();
-            break;
-        case "product_softgoods":
-            void handleSoftGoodImport();
-            break;
+      case "product_hardgoods":
+        void handleHardGoodImport();
+        break;
+      case "product_softgoods":
+        void handleSoftGoodImport();
+        break;
 
-        case "sheet_travismethew":
-           void handleTravisSheetImport();
-            break;
-                
-      }
-          
+      case "sheet_travismethew":
+        void handleTravisSheetImport();
+        break;
+
+    }
+
     // setIsSaving(true);
     // try {
     //   const datasetName = activeSheet || `Sheet ${new Date().toISOString().slice(0, 10)}`;
@@ -986,11 +994,11 @@ export function CallCheckWorkspace({
     //   setActiveDatasetSlug(payload.dataset.slug);
     //   setSheets([payload.dataset.name]);
     //   setActiveSheet(payload.dataset.name);
-      
+
     //   if (payload.dataset.uniqueValues) {
     //    // setCurrentUniqueValues(payload.dataset.uniqueValues);
     //   }
-      
+
     //   setGridData(payload.rows, buildColumnsFromObjects(payload.rows, payload.dataset.uniqueValues));
     //   syncSheetParam(payload.dataset.slug);
     //   window.alert(`Saved ${payload.rows.length} rows to the database.`);
@@ -1029,7 +1037,7 @@ export function CallCheckWorkspace({
     try {
       const response = await fetch(`/api/admin/call-check/rows/${rowId}`, {
         method: "PUT",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(params.data),
       });
 
@@ -1047,144 +1055,145 @@ export function CallCheckWorkspace({
   return (
     <>
 
-    <div
-      className="space-y-4"
-      onDragOver={(event) => {
-        event.preventDefault();
-        setIsDragging(true);
-      }}
-      onDragLeave={(event) => {
-        event.preventDefault();
-        setIsDragging(false);
-      }}
-      onDrop={(event) => {
-        event.preventDefault();
-        setIsDragging(false);
-        const file = event.dataTransfer.files?.[0];
-        if (file && /\.(xlsx|xls|csv)$/i.test(file.name)) {
-          processFile(file);
-        }
-      }}
-    >
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".xlsx,.xls,.csv"
-        className="hidden"
-        onChange={handleFileUpload}
-      />
-
-      <CallCheckDropzone active={isDragging} />
-
-      {hasData ? (
-        <>
-          <CallCheckToolbar
-            hasData={hasData}
-            isSaving={isSaving}
-            isDarkGrid={isDarkGrid}
-            onOpenFile={() => fileInputRef.current?.click()}
-            onAutoSize={autoSizeAll}
-            onExport={exportData}
-            onSave={() => setIsSaveModalOpen(true)}
-           
-            onToggleGridTheme={() => setIsDarkGrid((current) => !current)}
-            onSearchChange={updateSearch}
-          />
-
-          <CallCheckGrid
-            gridRef={gridRef}
-            rowData={rowData}
-            columnDefs={columnDefs}
-            defaultColDef={defaultColDef}
-            isDarkGrid={isDarkGrid}
-            onCellValueChanged={handleCellValueChanged}
-          />
-
-          <section className="premium-card overflow-hidden rounded-[28px]">
-            <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-foreground/76">
-                <FileSpreadsheet className="h-4 w-4" />
-                Sheet tabs
-              </div>
-              <span className="text-xs text-foreground/46">
-                {activeDatasetSlug ? "Loaded from database" : "Loaded from local workbook"}
-              </span>
-            </div>
-            <CallCheckSheetTabs
-              sheets={sheets}
-              activeSheet={activeSheet}
-              onSelect={(sheet) => {
-                if (workbook) {
-                  setIsLoading(true);
-                  setTimeout(() => {
-                    loadSheetData(workbook, sheet);
-                    setIsLoading(false);
-                  }, 100);
-                } else {
-                  setActiveSheet(sheet);
-                }
-              }}
-            />
-          </section>
-        </>
-      ) : (
-        <CallCheckEmptyState
-          urlInput={urlInput}
-          onUrlInputChange={setUrlInput}
-          onLoadFromUrl={loadFromUrl}
-          onOpenFile={() => fileInputRef.current?.click()}
-          onOpenDataset={openDataset}
-          datasets={datasets}
-          isLoading={isLoading}
+      <div
+        className="space-y-4"
+        onDragOver={(event) => {
+          event.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={(event) => {
+          event.preventDefault();
+          setIsDragging(false);
+        }}
+        onDrop={(event) => {
+          event.preventDefault();
+          setIsDragging(false);
+          const file = event.dataTransfer.files?.[0];
+          if (file && /\.(xlsx|xls|csv)$/i.test(file.name)) {
+            processFile(file);
+          }
+        }}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".xlsx,.xls,.csv"
+          className="hidden"
+          onChange={handleFileUpload}
         />
-      )}
 
-      <CallCheckSaveModal
-        isOpen={isSaveModalOpen}
-        onClose={() => setIsSaveModalOpen(false)}
-        onSave={saveToDb}
-      />
+        <CallCheckDropzone active={isDragging} />
 
-      {status !== 'idle' && file && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-[28px] border border-border/70 bg-background shadow-2xl p-6">
-            <ImportStatusPanel
-              file={file}
-              status={status}
-              progress={progress}
-              progressLabel={progressLabel}
-              summary={summary}
-              onClear={() => {
-                setStatus('idle');
-                setProgress(0);
-                setProgressLabel('');
-                setSummary(null);
-                setIsSaveModalOpen(false); // Make sure the modal closes when done
-              }}
-              disableClear={status === 'uploading'}
+        {hasData ? (
+          <>
+            <CallCheckToolbar
+              hasData={hasData}
+              isSaving={isSaving}
+              isDarkGrid={isDarkGrid}
+              onOpenFile={() => fileInputRef.current?.click()}
+              onAutoSize={autoSizeAll}
+              onExport={exportData}
+              onSave={() => setIsSaveModalOpen(true)}
+
+              onToggleGridTheme={() => setIsDarkGrid((current) => !current)}
+              onSearchChange={updateSearch}
             />
-          </div>
-        </div>
-      )}
 
-      {isLoading && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/60 backdrop-blur-md transition-all duration-300">
-          <div className="flex flex-col items-center gap-5">
-            <div className="relative flex h-20 w-20 items-center justify-center">
-              <div className="absolute inset-0 rounded-full border-4 border-primary/10" />
-              <div className="absolute inset-0 animate-ping rounded-full border-4 border-primary/20" />
-              <Loader2 className="h-10 w-10 animate-spin text-primary" strokeWidth={1.5} />
-            </div>
-            <div className="space-y-2 text-center">
-              <h3 className="text-xl font-bold tracking-tight text-foreground">Processing Spreadsheet</h3>
-              <p className="max-w-[280px] text-sm leading-relaxed text-foreground/60">
-                Please wait while we analyze your data and prepare the workspace.
-              </p>
+            <CallCheckGrid
+              gridRef={gridRef}
+              rowData={rowData}
+              columnDefs={columnDefs}
+              defaultColDef={defaultColDef}
+              isDarkGrid={isDarkGrid}
+              onCellValueChanged={handleCellValueChanged}
+              onFilterChanged={handleFilterChanged}
+            />
+
+            <section className="premium-card overflow-hidden rounded-[28px]">
+              <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
+                <div className="flex items-center gap-2 text-sm font-semibold text-foreground/76">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Sheet tabs
+                </div>
+                <span className="text-xs text-foreground/46">
+                  {activeDatasetSlug ? "Loaded from database" : "Loaded from local workbook"}
+                </span>
+              </div>
+              <CallCheckSheetTabs
+                sheets={sheets}
+                activeSheet={activeSheet}
+                onSelect={(sheet) => {
+                  if (workbook) {
+                    setIsLoading(true);
+                    setTimeout(() => {
+                      loadSheetData(workbook, sheet);
+                      setIsLoading(false);
+                    }, 100);
+                  } else {
+                    setActiveSheet(sheet);
+                  }
+                }}
+              />
+            </section>
+          </>
+        ) : (
+          <CallCheckEmptyState
+            urlInput={urlInput}
+            onUrlInputChange={setUrlInput}
+            onLoadFromUrl={loadFromUrl}
+            onOpenFile={() => fileInputRef.current?.click()}
+            onOpenDataset={openDataset}
+            datasets={datasets}
+            isLoading={isLoading}
+          />
+        )}
+
+        <CallCheckSaveModal
+          isOpen={isSaveModalOpen}
+          onClose={() => setIsSaveModalOpen(false)}
+          onSave={saveToDb}
+        />
+
+        {status !== 'idle' && file && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl rounded-[28px] border border-border/70 bg-background shadow-2xl p-6">
+              <ImportStatusPanel
+                file={file}
+                status={status}
+                progress={progress}
+                progressLabel={progressLabel}
+                summary={summary}
+                onClear={() => {
+                  setStatus('idle');
+                  setProgress(0);
+                  setProgressLabel('');
+                  setSummary(null);
+                  setIsSaveModalOpen(false); // Make sure the modal closes when done
+                }}
+                disableClear={status === 'uploading'}
+              />
             </div>
           </div>
-        </div>
-      )}
-    </div>
-      </>
+        )}
+
+        {isLoading && (
+          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/60 backdrop-blur-md transition-all duration-300">
+            <div className="flex flex-col items-center gap-5">
+              <div className="relative flex h-20 w-20 items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-4 border-primary/10" />
+                <div className="absolute inset-0 animate-ping rounded-full border-4 border-primary/20" />
+                <Loader2 className="h-10 w-10 animate-spin text-primary" strokeWidth={1.5} />
+              </div>
+              <div className="space-y-2 text-center">
+                <h3 className="text-xl font-bold tracking-tight text-foreground">Processing Spreadsheet</h3>
+                <p className="max-w-[280px] text-sm leading-relaxed text-foreground/60">
+                  Please wait while we analyze your data and prepare the workspace.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

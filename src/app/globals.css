@@ -329,3 +329,29 @@ textarea:focus {
 .animate-slow-zoom {
   animation: slow-zoom 20s infinite alternate linear;
 }
+
+/* AG Grid Active Filter Indicator */
+.filter-active .ag-icon-filter,
+.filter-active .ag-floating-filter-button-button {
+  position: relative;
+  color: #3b82f6 !important;
+}
+
+.filter-active .ag-floating-filter-button-button::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #3b82f6;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+}
+
+.ag-theme-quartz-dark .filter-active .ag-floating-filter-button-button::after,
+.ag-theme-quartz .filter-active .ag-floating-filter-button-button::after {
+  display: block;
+}
+

@@ -122,7 +122,7 @@ const collections = useMemo(() => {
           </button>
           <button
             onClick={handleSave}
-            className="rounded-[14px] bg-primary px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+            className="rounded-[14px] bg-primary px-4 py-2 text-sm font-semibold text-background transition-opacity hover:opacity-90"
           >
             Save Dataset
           </button>

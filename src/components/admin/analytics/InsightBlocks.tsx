@@ -297,18 +297,18 @@ export function BrandCatalogCard({
           items.map((item) => (
             <div key={item.label} className="rounded-xl border border-border bg-surface p-4 transition duration-300 hover:bg-surface-muted">
               <p className="text-xs font-bold uppercase tracking-wider text-muted">{item.label}</p>
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{item.products}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted">Items</p>
+              <div className="mt-4 flex items-center justify-between border-t border-border/40 pt-4 text-center">
+                <div className="flex-1">
+                  <p className="text-xl font-bold tracking-tight text-foreground">{item.products}</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted">Items</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{item.variants}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted">SKUs</p>
+                <div className="flex-1 border-x border-border/40">
+                  <p className="text-xl font-bold tracking-tight text-foreground">{item.variants}</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted">SKUs</p>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-foreground">{item.stock}</p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted">Stock</p>
+                <div className="flex-1">
+                  <p className="text-xl font-bold tracking-tight text-foreground">{item.stock}</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted">Stock</p>
                 </div>
               </div>
             </div>
