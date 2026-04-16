@@ -39,9 +39,8 @@ export async function saveWarehouse(formData: FormData) {
   redirect("/admin/warehouses");
 }
 
-export async function deleteWarehouse(formData: FormData) {
+export async function deleteWarehouse(id: string) {
   await dbConnect();
-  const id = String(formData.get("id") ?? "").trim();
   await Warehouse.findByIdAndDelete(id);
   revalidatePath("/admin/warehouses");
   redirect("/admin/warehouses");

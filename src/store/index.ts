@@ -10,6 +10,7 @@ import userReducer from './slices/users/userSlice';
 import orderReducer from './slices/order/OrderSlice';
 import softgoodsReducer from './slices/softgoods/softgoodsSlice';
 import travisSheetReducer from '@/store/slices/sheet/travismethew/TravisSheetSlice';
+import warehouseReducer from '@/store/slices/wareHouse/wareHouseSlice';
 export const store = configureStore({
   reducer: {
     brand: brandReducer,
@@ -22,6 +23,8 @@ export const store = configureStore({
     order: orderReducer,
     softgoods: softgoodsReducer,
     travisSheet: travisSheetReducer,
+  warehouse:warehouseReducer,
+
   },
   devTools: {
     name: "CallawayOne Store"
