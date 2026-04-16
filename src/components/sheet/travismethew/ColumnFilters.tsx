@@ -8,7 +8,8 @@ import clsx from 'clsx';
 export type FilterOperator = 'contains' | 'notContains' | 'equals' | 'notEquals' | 'startsWith' | 'endsWith' | 'blank' | 'notBlank';
 
 export interface ColumnFilterData {
-  selection: string; // "(All)" or specific value
+  // Changed from [] to string[] for clarity
+  selection: string[]; 
   operator: FilterOperator;
   searchValue: string;
 }
@@ -35,6 +36,9 @@ export function SelectionFilter({ columnKey, uniqueValues, currentFilter, onFilt
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Ensure selection is always an array to prevent .length crashes
+  const selections = Array.isArray(currentFilter.selection) ? currentFilter.selection : [];
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -45,21 +49,28 @@ export function SelectionFilter({ columnKey, uniqueValues, currentFilter, onFilt
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen]);
 
-  const isActive = currentFilter.selection !== '(All)';
+  const isActive = selections.length > 0;
+
+  // Generate the label for the button
+  const getButtonLabel = () => {
+    if (selections.length === 0) return '(All)';
+    if (selections.length === 1) return selections[0] || '(Empty)';
+    return `${selections.length} Selected`;
+  };
 
   return (
     <div className="relative" ref={containerRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={clsx(
-          "flex min-w-[100px] items-center justify-between gap-1 rounded px-2 py-1 text-[11px] font-medium transition-colors",
+          "flex min-w-[110px] items-center justify-between gap-2 rounded px-2 py-1.5 text-[11px] font-medium transition-all",
           isActive 
-            ? "bg-primary/20 text-primary ring-1 ring-primary/40" 
-            : "bg-surface-elevated text-foreground hover:bg-surface-strong/20"
+            ? "bg-primary text-foreground ring-1 ring-primary/40 shadow-sm" 
+            : "bg-surface-elevated text-foreground hover:bg-surface-strong/20 border border-border/40"
         )}
       >
-        <span className="truncate">{currentFilter.selection || '(All)'}</span>
-        <ChevronDown size={12} className={clsx('transition-transform', isOpen && 'rotate-180')} />
+        <span className="truncate">{getButtonLabel()}</span>
+        <ChevronDown size={12} className={clsx('shrink-0 transition-transform', isOpen && 'rotate-180')} />
       </button>
 
       <AnimatePresence>
@@ -68,31 +79,49 @@ export function SelectionFilter({ columnKey, uniqueValues, currentFilter, onFilt
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
-            className="absolute left-0 top-full z-[100] mt-1 max-h-60 w-48 overflow-auto rounded-lg border border-border bg-surface p-1 shadow-2xl"
+            className="absolute left-0 top-full z-[100] mt-1 max-h-72 w-56 overflow-hidden rounded-xl border border-border bg-surface shadow-2xl flex flex-col"
           >
-            <button
-              onClick={() => { onFilterChange(columnKey, { selection: '(All)' }); setIsOpen(false); }}
-              className={clsx(
-                "flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-[11px] hover:bg-foreground/5",
-                currentFilter.selection === '(All)' ? "text-primary" : "text-foreground/60"
-              )}
-            >
-              <span>(All)</span>
-              {currentFilter.selection === '(All)' && <Check size={12} />}
-            </button>
-            {uniqueValues.map(val => (
+            <div className="p-1 border-b border-border/40 bg-foreground/[0.02]">
               <button
-                key={val}
-                onClick={() => { onFilterChange(columnKey, { selection: val }); setIsOpen(false); }}
+                onClick={() => onFilterChange(columnKey, { selection: [] })}
                 className={clsx(
-                  "flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-[11px] hover:bg-foreground/5",
-                  currentFilter.selection === val ? "text-primary" : "text-foreground/60"
+                  "flex w-full items-center justify-between rounded px-2 py-2 text-left text-[11px] font-semibold hover:bg-foreground/5 transition-colors",
+                  selections.length === 0 ? "text-primary" : "text-foreground/60"
                 )}
               >
-                <span className="truncate">{val || '(Empty)'}</span>
-                {currentFilter.selection === val && <Check size={12} />}
+                <span>Select All</span>
+                {selections.length === 0 && <Check size={14} strokeWidth={3} />}
               </button>
-            ))}
+            </div>
+
+            <div className="overflow-y-auto p-1 custom-scrollbar">
+              {uniqueValues.map(val => {
+                const isSelected = selections.includes(val);
+                return (
+                  <button
+                    key={val}
+                    onClick={() => {
+                      // Handled by the toggle logic in the parent component
+                      onFilterChange(columnKey, { selection: val as any });
+                    }}
+                    className={clsx(
+                      "flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-[11px] hover:bg-foreground/5 transition-colors group",
+                      isSelected ? "text-primary bg-primary/5" : "text-foreground/60"
+                    )}
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <div className={clsx(
+                        "h-3 w-3 rounded-[3px] border flex items-center justify-center transition-colors",
+                        isSelected ? "bg-primary border-primary" : "border-border group-hover:border-foreground/40"
+                      )}>
+                        {isSelected && <Check size={10} className="text-foreground" strokeWidth={4} />}
+                      </div>
+                      <span className="truncate">{val || '(Empty)'}</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -100,6 +129,8 @@ export function SelectionFilter({ columnKey, uniqueValues, currentFilter, onFilt
   );
 }
 
+// FloatingFilterPopup remains largely the same, but ensure it interacts correctly 
+// with the parent logic that clears selections when searching.
 export function FloatingFilterPopup({ columnKey, currentFilter, onFilterChange }: Omit<FilterProps, 'uniqueValues'>) {
   const [isOpen, setIsOpen] = useState(false);
   const [tempOperator, setTempOperator] = useState<FilterOperator>(currentFilter.operator);
@@ -138,8 +169,10 @@ export function FloatingFilterPopup({ columnKey, currentFilter, onFilterChange }
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={clsx(
-          "flex h-6 w-6 items-center justify-center rounded transition-colors",
-          isActive ? "bg-primary/20 text-primary ring-1 ring-primary/40" : "text-foreground/40 hover:bg-foreground/5"
+          "flex h-7 w-7 items-center justify-center rounded-md transition-all",
+          isActive 
+            ? "bg-primary text-foreground shadow-sm ring-1 ring-primary/40" 
+            : "text-foreground/40 hover:bg-foreground/5 border border-border/20"
         )}
       >
         <Filter size={14} />
@@ -203,4 +236,3 @@ export function FloatingFilterPopup({ columnKey, currentFilter, onFilterChange }
     </div>
   );
 }
-

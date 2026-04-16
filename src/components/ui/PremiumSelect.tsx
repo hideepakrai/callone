@@ -91,8 +91,8 @@ export const PremiumSelect: React.FC<PremiumSelectProps> = ({
           'flex h-[44px] w-full items-center justify-between rounded-xl border transition-all duration-300 outline-none',
           'px-5 py-3 text-[13px] font-bold text-foreground',
           isOpen 
-            ? 'border-white/18 bg-[#111111] shadow-[0_0_0_4px_rgba(255,255,255,0.06)]' 
-            : 'border-white/8 bg-[#0d0d0d] backdrop-blur-sm hover:border-white/18 hover:bg-[#111111]',
+            ? 'border-white/18 bg-surface shadow-[0_0_0_4px_rgba(255,255,255,0.06)]' 
+            : 'border-white/8 bg-surface backdrop-blur-sm hover:border-white/18 hover:bg-surface',
           disabled && 'opacity-50 cursor-not-allowed',
           triggerClassName
         )}
