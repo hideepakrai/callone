@@ -139,10 +139,11 @@ export function CallCheckWorkspace({
       resizable: true,
       sortable: true,
       editable: true,
-      headerClass: (params) => {
-        const filterModel = params.api.getFilterModel();
-        return filterModel[params.colDef.field || ""] ? "filter-active" : "";
-      },
+      // headerClass: (params) => {
+      //   const filterModel = params.api.getFilterModel();
+      //   console.log(filterModel, "filterModel");
+      //   return filterModel[params?.colDef?.field || ""] ? "filter-active" : "";
+      // },
     }),
     []
   );

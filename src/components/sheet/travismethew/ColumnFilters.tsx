@@ -65,7 +65,7 @@ export function SelectionFilter({ columnKey, uniqueValues, currentFilter, onFilt
         className={clsx(
           "flex min-w-[110px] items-center justify-between gap-2 rounded px-2 py-1.5 text-[11px] font-medium transition-all",
           isActive 
-            ? "bg-primary text-foreground ring-1 ring-primary/40 shadow-sm" 
+            ? " text-foreground ring-1 ring-primary/40 shadow-sm" 
             : "bg-surface-elevated text-foreground hover:bg-surface-strong/20 border border-border/40"
         )}
       >
