@@ -1,3 +1,5 @@
+
+
 export interface ITravisMethewSheetItem {
   SKU?: string;
   Option?: string;
@@ -30,6 +32,11 @@ export interface ITravisMethewSheetItem {
   updatedAt?: string;
 }
 
+export interface ShowTravisSheetModal{
+  baseSku?:string
+  imagePath?:string
+  allVariant?:ITravisMethewSheetItem[]
+}
 export const TRAVIS_SHEET_FIELDS = [
   "SKU",
   "Option",

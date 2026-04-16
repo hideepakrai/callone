@@ -7,7 +7,7 @@ import { RootState } from "@/store";
 import { ProductImage } from "@/components/admin/ProductImage";
 import { ITravisMethewSheetItem } from "@/store/slices/sheet/travismethew/TravisMethewSheetType";
 import { usePathname } from "next/navigation";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, startTransition } from "react";
 import { 
   ColumnFilterData, 
   FilterOperator, 
@@ -116,19 +116,54 @@ export default function TravisMEthewSheetTable() {
   }, []);
 
 
-  const handleFilterChange = useCallback((key: string, data: Partial<ColumnFilterData>) => {
-    setColumnFilters(prev => ({
-      ...prev,
-      [key]: {
-        ...(prev[key] || { selection: '(All)', operator: 'contains', searchValue: '' }),
-        ...data
+const handleFilterChange = useCallback((key: string, data: Partial<ColumnFilterData>) => {
+  startTransition(() => {
+    setColumnFilters(prev => {
+      const prevFilter = prev[key] || {
+        selection: '(All)',
+        operator: 'contains',
+        searchValue: ''
+      };
+
+      const updatedFilter = {
+        ...prevFilter,
+        ...data,
+      };
+
+      // ✅ If user types search → reset dropdown selection
+      if (data.searchValue !== undefined && data.searchValue !== '') {
+        updatedFilter.selection = '(All)';
       }
-    }));
-  }, []);
+
+      return {
+        ...prev,
+        [key]: updatedFilter
+      };
+    });
+  });
+}, []);
 
   const currentAttribute = useMemo(() => {
     return allAttribute.find((attr) => attr.name === "Travis Mathew sheet")
   }, [allAttribute])
+
+  const uniqueValuesByColumn = useMemo(() => {
+    const values: Record<string, string[]> = {};
+    if (!currentAttribute?.attributes) return values;
+
+    currentAttribute.attributes.forEach(attr => {
+      const key = attr.key as string;
+      if (!key || attr.show === false) return;
+
+      const unique = Array.from(new Set(allTravisSheet.map(row => String(getRowValue(row, key) ?? ''))))
+        .filter(Boolean)
+        .sort()
+        .slice(0, 100);
+      values[key] = unique;
+    });
+
+    return values;
+  }, [allTravisSheet, currentAttribute]);
 
   const filteredRows = useMemo(() => {
     return allTravisSheet.filter(row => {
@@ -209,12 +244,9 @@ export default function TravisMEthewSheetTable() {
     return fullCols.map(col => ({
       ...col,
       renderFilter: (label: React.ReactNode) => {
-        if (col.key === "index" || col.key === "selection") return null;
+        if (col.key === "index" || col.key === "selection" || col.key === "image") return null;
 
-        const uniqueValues = Array.from(new Set(allTravisSheet.map(row => String(getRowValue(row, col.key) ?? ''))))
-          .filter(Boolean)
-          .sort()
-          .slice(0, 100);
+        const uniqueValues = uniqueValuesByColumn[col.key as string] || [];
 
         return (
           <div className="flex items-center gap-1.5 pt-1">
@@ -322,9 +354,8 @@ export default function TravisMEthewSheetTable() {
 
                   if (column.key === "image" as any) {
                     const skuValue = getRowValue(row, "SKU");
-                    console.log("skuiiiii",skuValue)
-                      const currentSku= travismathew.find((item)=>item.sku===skuValue)
-                       console.log("currentSku",currentSku)
+                    const baseSku = getBaseSku(skuValue).toUpperCase();
+                    const currentSku = travisMathewMap.get(baseSku);
                       
                     return (
                       <td key={`${rowKey}-image`} className="whitespace-nowrap border-b border-border/40 px-4 py-3 align-top">
