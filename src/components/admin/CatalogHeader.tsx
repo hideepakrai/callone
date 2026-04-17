@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import ShowAppliedfilter from "./productTable/ShowAppliedfilter";
 const SORT_OPTIONS = [
   { value: "latest", label: "Latest updated" },
   { value: "name-asc", label: "Name A-Z" },
@@ -120,6 +121,9 @@ export function CatalogHeader({
   clearAllFilters,
 }: CatalogHeaderProps) {
 const {currentAttribute} = useSelector((state:RootState) => state.attribute);
+
+console.log("categoryFilters",categoryFilters)
+console.log("appliedFilters",appliedFilters)
  const handleDownloadSample = async () => {
     if (!currentAttribute?.attributes) return;
 
@@ -294,7 +298,7 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
       style={{colorScheme: "dark"}}
     >
       {SORT_OPTIONS.map((option) => (
-        <option key={option.value} value={option.value} className="bg-[#111111] text-white">
+        <option key={option.value} value={option.value} className=" text-white">
           {option.label}
         </option>
       ))}
@@ -396,8 +400,11 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
             </div>
           </motion.div>
         ) : null}
-
-        {appliedFilters.length ? (
+          <ShowAppliedfilter
+          appliedFilters={appliedFilters}
+          clearAllFilters={clearAllFilters}
+          />
+        {/* {appliedFilters.length ? (
           <div className="flex flex-wrap items-center gap-2">
             {appliedFilters.map((filterItem) => (
               <button
@@ -417,7 +424,7 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
               Clear all
             </button>
           </div>
-        ) : null}
+        ) : null} */}
       </div>
     </section>
   );
@@ -459,16 +466,69 @@ function FilterGroup({
   selectedValues: string[];
   onToggle: (value: string) => void;
 }) {
+  const chipsRef = React.useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = React.useState(false);
+  const [hasOverflow, setHasOverflow] = React.useState(false);
+  const [collapsedMaxHeight, setCollapsedMaxHeight] = React.useState(40);
+  const selectedValuesKey = React.useMemo(() => selectedValues.join("\u0000"), [selectedValues]);
+
+  const recompute = React.useCallback(() => {
+    const el = chipsRef.current;
+    if (!el) return;
+
+    const firstChip = el.querySelector<HTMLElement>("button");
+    const firstChipHeight = firstChip ? Math.ceil(firstChip.getBoundingClientRect().height) : 40;
+    const nextCollapsedMaxHeight = Math.max(32, firstChipHeight);
+    setCollapsedMaxHeight(nextCollapsedMaxHeight);
+
+    const overflow = el.scrollHeight > nextCollapsedMaxHeight + 1;
+    setHasOverflow(overflow);
+    if (!overflow) {
+      setExpanded(false);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const raf = requestAnimationFrame(recompute);
+    return () => cancelAnimationFrame(raf);
+  }, [recompute, values.length, selectedValuesKey]);
+
+  React.useEffect(() => {
+    const el = chipsRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+
+    const ro = new ResizeObserver(() => recompute());
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [recompute]);
+
   if (!values.length) {
     return null;
   }
 
   return (
     <div className="rounded-[22px] border border-white/8 bg-[color:var(--surface)] p-3">
-      <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-foreground/46">
-        {title}
-      </p>
-      <div className="flex flex-wrap gap-2">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-foreground/46">
+          {title}
+        </p>
+        {hasOverflow ? (
+          <button
+            type="button"
+            onClick={() => setExpanded((curr) => !curr)}
+            aria-expanded={expanded}
+            className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 transition hover:border-white/18 hover:bg-white/[0.05] hover:text-foreground"
+          >
+            {expanded ? "Show less" : "Show more"}
+          </button>
+        ) : null}
+      </div>
+
+      <div
+        ref={chipsRef}
+        className={`flex flex-wrap gap-2 ${expanded ? "" : "overflow-hidden"}`}
+        style={expanded ? undefined : { maxHeight: collapsedMaxHeight }}
+      >
         {values.map((value) => {
           const selected = selectedValues.includes(value);
 
@@ -478,7 +538,7 @@ function FilterGroup({
               onClick={() => onToggle(value)}
               className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                 selected
-                  ? "border-white/14 bg-white/[0.08] text-white"
+                  ? "border-white/14 bg-white/[0.08]"
                   : "border-white/8 bg-white/[0.03] text-foreground/66 hover:text-foreground"
               }`}
             >

@@ -267,7 +267,8 @@ export function ProductCatalogWorkspace({
       }
 
       const productGroup = product.attributeGroups.find((group) => group.key === attributeKey);
-      if (!productGroup || !productGroup.values.some((value) => selectedValues.includes(value))) {
+      // AND filtering: product must contain *all* selected values for a given attribute key.
+      if (!productGroup || !selectedValues.every((value) => productGroup.values.includes(value))) {
         return false;
       }
     }
@@ -504,7 +505,7 @@ export function ProductCatalogWorkspace({
         }
         dataItem.push(data)
       })
-      console.log("dataItem---->", dataItem)
+   
       // dispatch(addToCart(dataItem))
     }
   }, [skuQuantities])
@@ -665,6 +666,8 @@ export function ProductCatalogWorkspace({
             skuQuantities={skuQuantities}
             setSkuQuantities={setSkuQuantities}
             onOpenPreview={handleOpenPreview}
+            appliedFilters={appliedFilters}
+            clearAllFilters={clearAllFilters}
           />
         </div>
 
@@ -752,4 +755,3 @@ export function ProductCatalogWorkspace({
     </>
   );
 }
-

@@ -6,6 +6,7 @@ import { ProductTable } from "./productTable/groupView/ProductTable";
 import { SkuTable } from "./productTable/skuTable/SkuTable";
 import { EmptyState } from "./EmptyState";
 import { CartItem } from "@/store/slices/cart/cartSlice";
+import ShowAppliedfilter from "./productTable/ShowAppliedfilter";
 
 interface CatalogTableProps {
   visibleRows: any[];
@@ -26,6 +27,8 @@ interface CatalogTableProps {
   skuQuantities: Record<string, CartItem>;
   setSkuQuantities: React.Dispatch<React.SetStateAction<Record<string, CartItem>>>;
   onOpenPreview: (images: string[], index: number) => void;
+  appliedFilters: any[];
+  clearAllFilters: () => void;
 }
 
 export function CatalogTable({
@@ -47,6 +50,8 @@ export function CatalogTable({
   skuQuantities,
   setSkuQuantities,
   onOpenPreview,
+  appliedFilters,
+  clearAllFilters
 }: CatalogTableProps) {
   return (
     <section className="flex flex-col gap-6">
@@ -59,7 +64,7 @@ export function CatalogTable({
               <h3 className="text-xl font-black uppercase tracking-widest text-foreground">
                 {viewMode === "product" ? "Product Workspace" : "SKU Manifest"}
               </h3>
-              
+
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30 italic">
                 {viewMode === "product"
                   ? "Operational Global Catalog"
@@ -71,7 +76,10 @@ export function CatalogTable({
               {sortedProductsCount === 0 ? "NO RECORDS" : `${pageStart + 1} - ${Math.min(pageStart + pageSize, sortedProductsCount)} OF ${sortedProductsCount}`}
             </div>
           </div>
-          
+            <ShowAppliedfilter  
+            appliedFilters={appliedFilters}
+            clearAllFilters={clearAllFilters}
+            />
           {/* Internal Search/Navigation would go here if needed, but it's handled in catalogue.tsx usually. 
               We'll keep the space optimized. */}
         </div>
@@ -107,6 +115,8 @@ export function CatalogTable({
               skuQuantities={skuQuantities}
               setSkuQuantities={setSkuQuantities}
               onOpenPreview={onOpenPreview}
+              appliedFilters={appliedFilters}
+              clearAllFilters={clearAllFilters}
             />
           )}
         </div>
@@ -115,7 +125,7 @@ export function CatalogTable({
           <div className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/30 italic">
             Page {currentPage} <span className="mx-2">/</span> {pageCount} Indexed
           </div>
-          
+
           <div className="flex items-center gap-3">
             <button
               onClick={() => setPage((current) => Math.max(1, current - 1))}

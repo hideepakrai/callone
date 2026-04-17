@@ -22,7 +22,7 @@ const WareHouseHome = ({ warehouses, inventorySummary }: props) => {
       <GetAllWareHouse />
       <PageHeader
         title="Warehouses"
-        description="Replace fixed stock columns with reusable warehouse records and live stock reservations."
+        description="Manage warehouse records and live stock reservations."
 
       />
 

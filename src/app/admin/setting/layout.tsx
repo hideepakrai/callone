@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import NavItemsection from "@/components/setting/leftSection/NavItemsection";
 
 export default function SettingsLayout({
@@ -8,44 +5,20 @@ export default function SettingsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [activeTab, setActiveTab] = useState("users");
-
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f5f5f5" }}>
-      
-      {/* Sidebar */}
-      <aside
-        style={{
-          width: "220px",
-          minWidth: "220px",
-          background: "#ffffff",
-          borderRight: "1px solid #e5e7eb",
-          padding: "24px 0",
-          display: "flex",
-          flexDirection: "column",
-          gap: "4px",
-        }}
-      >
-        <div
-          style={{
-            padding: "0 20px 16px 20px",
-            fontSize: "11px",
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            color: "#9ca3af",
-            textTransform: "uppercase",
-          }}
-        >
-          Settings
+    <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
+      <aside className="premium-card overflow-hidden rounded-[28px]">
+        <div className="border-b border-border/10 px-6 py-6">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-foreground/42">
+            Settings
+          </p>
         </div>
-
-        <NavItemsection />
+        <div className="p-3">
+          <NavItemsection />
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ flex: 1, padding: "32px" }}>
-        {children}
-      </main>
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }

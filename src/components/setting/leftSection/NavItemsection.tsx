@@ -1,7 +1,9 @@
 "use client"
 
 import { Users, Tag, Layers, Warehouse } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
 const navItems = [
     { key: "users", label: "Users", icon: Users , href: "/admin/setting/users"},
@@ -11,35 +13,29 @@ const navItems = [
 ];
 
 const NavItemsection = () => {
-    const router = useRouter();
+    const pathname = usePathname();
     return (
-        <div>
-            {navItems.map(({ key, label, icon: Icon, href }) => (
-                <button
-                    key={key}
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "10px",
-                        padding: "10px 20px",
-                        margin: "0 8px",
-                        borderRadius: "8px",
-                        border: "none",
-                        cursor: "pointer",
-                        background: "transparent",
-                        color: "#6b7280",
-                        fontWeight: 400,
-                        fontSize: "14px",
-                        textAlign: "left",
-                        transition: "background 0.15s, color 0.15s",
-                    }}
-                    onClick={() => router.push(href)}
-                >
-                    <Icon size={16} strokeWidth={1.8} />
-                    {label}
-                </button>
-            ))}
-        </div>
+        <nav className="space-y-1">
+            {navItems.map(({ key, label, icon: Icon, href }) => {
+                const isActive = pathname === href || pathname.startsWith(`${href}/`);
+
+                return (
+                    <Link
+                        key={key}
+                        href={href}
+                        className={clsx(
+                            "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
+                            isActive
+                                ? "bg-foreground text-background shadow-[0_18px_40px_rgba(0,0,0,0.14)]"
+                                : "text-foreground/62 hover:bg-foreground/[0.04] hover:text-foreground"
+                        )}
+                    >
+                        <Icon size={16} strokeWidth={1.8} className={clsx(isActive ? "text-background" : "text-foreground/60")} />
+                        {label}
+                    </Link>
+                );
+            })}
+        </nav>
     );
 };
 

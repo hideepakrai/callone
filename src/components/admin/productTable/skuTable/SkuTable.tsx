@@ -26,6 +26,8 @@ interface SkuTableProps {
   skuQuantities: Record<string, CartItem>;
   setSkuQuantities: React.Dispatch<React.SetStateAction<Record<string, CartItem>>>;
   onOpenPreview: (images: string[], index: number) => void;
+    appliedFilters: any[];
+  clearAllFilters: () => void;
 }
 
 export function SkuTable({
@@ -39,7 +41,9 @@ export function SkuTable({
   statusClasses,
   skuQuantities,
   setSkuQuantities,
-  onOpenPreview
+  onOpenPreview,
+  appliedFilters,
+  clearAllFilters
 }: SkuTableProps) {
   // Pull data from Redux to show "data on redux" as requested
 
