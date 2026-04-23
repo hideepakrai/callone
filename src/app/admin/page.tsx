@@ -76,14 +76,14 @@ export default function AdminDashboardPage() {
   }, [data]);
 
   return (
-    <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700 ">
       <section className="space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-6 px-1 pt-2">
           <div className="space-y-1">
-            <p className="text-[11px] font-black uppercase tracking-[0.3em] text-foreground/80 drop-shadow-md">
+            <p className="text-[11px] font-black uppercase tracking-[0.3em] text-white dark:drop-shadow-md">
               Live intelligence
             </p>
-            <h1 className="text-4xl font-black tracking-tight text-foreground drop-shadow-md">
+            <h1 className="text-4xl font-black tracking-tight text-white dark:drop-shadow-md">
               Performance Matrix
             </h1>
           </div>

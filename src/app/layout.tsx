@@ -24,10 +24,10 @@ export const metadata: Metadata = {
   description: "B2B Enterprise Order Management System",
   icons: {
     icon: [
-      { url: "/images/brands/callaway-favicon.png", type: "image/png" },
+      { url: "/images/favicon.png", type: "image/png" },
     ],
-    shortcut: "/images/brands/callaway-favicon.png",
-    apple: "/images/brands/callaway-favicon.png",
+    shortcut: "/images/favicon.png",
+    apple: "/images/favicon.png",
   },
 };
 

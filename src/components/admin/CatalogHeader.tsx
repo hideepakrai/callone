@@ -199,35 +199,35 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
         <div className="flex flex-wrap items-center gap-2">
           <button
               onClick={handleDownloadSample}
-              className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-foreground/76 transition hover:border-white/18 hover:bg-white/[0.06]"
+              className="rounded-2xl border border-border/30 bg-surface-muted/50 px-4 py-2.5 text-sm font-semibold text-foreground/80 transition hover:border-border/60 hover:bg-surface-muted"
             >
               Sample Download
             </button>
           {isSourceReadonly ? (
             <Link
               href={importHref}
-              className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-foreground/76 transition hover:border-white/18 hover:bg-white/[0.06]"
+              className="rounded-2xl border border-border/30 bg-surface-muted/50 px-4 py-2.5 text-sm font-semibold text-foreground/80 transition hover:border-border/60 hover:bg-surface-muted"
             >
               {importLabel}
             </Link>
           ) : (
             <button
               onClick={handleImport}
-              className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-foreground/76 transition hover:border-white/18 hover:bg-white/[0.06]"
+              className="rounded-2xl border border-border/30 bg-surface-muted/50 px-4 py-2.5 text-sm font-semibold text-foreground/80 transition hover:border-border/60 hover:bg-surface-muted"
             >
               Import file
             </button>
           )}
           <button
             onClick={exportVisible}
-            className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-foreground/76 transition hover:border-white/18 hover:bg-white/[0.06]"
+            className="rounded-2xl border border-border/30 bg-surface-muted/50 px-4 py-2.5 text-sm font-semibold text-foreground/80 transition hover:border-border/60 hover:bg-surface-muted"
           >
             Export visible
           </button>
           {newProductHref ? (
             <Link
               href={newProductHref}
-              className="rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-background shadow-[0_16px_32px_rgba(255,255,255,0.12)] transition hover:opacity-95"
+              className="rounded-2xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background shadow-lg transition hover:opacity-90"
             >
               {newProductLabel}
             </Link>
@@ -254,13 +254,13 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
     />
   </label>
 
-  <div className="flex items-center gap-1 rounded-[22px] border border-white/8 bg-white/[0.03] p-1.5 shadow-[0_16px_30px_rgba(0,0,0,0.16)]">
+  <div className="flex items-center gap-1 rounded-[22px] border border-border/30 bg-surface-muted/30 p-1.5 shadow-sm">
     <button
       onClick={() => setViewMode("product")}
       className={`flex items-center gap-2 rounded-[18px] px-4 py-2 text-sm font-semibold ${
         viewMode === "product"
-          ? "text-blue-600 shadow-[0_8px_20px_rgba(255,255,255,0.12)]"
-          : "text-foreground/55 hover:bg-white/[0.04]"
+          ? "bg-surface shadow-sm text-foreground"
+          : "text-foreground/60 hover:bg-surface/50"
       }`}
     >
       <LayoutGrid className="h-4 w-4" />
@@ -271,8 +271,8 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
       onClick={() => setViewMode("sku")}
       className={`flex items-center gap-2 rounded-[18px] px-4 py-2 text-sm font-semibold ${
         viewMode === "sku"
-          ? "text-blue-600 shadow-[0_8px_20px_rgba(255,255,255,0.12)]"
-          : "text-foreground/55 hover:bg-white/[0.04]"
+          ? "bg-surface shadow-sm text-foreground"
+          : "text-foreground/60 hover:bg-surface/50"
       }`}
     >
       <Layers className="h-4 w-4" />
@@ -282,38 +282,36 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
 
   <button
     onClick={() => setFilterPanelOpen((c: boolean) => !c)}
-    className="inline-flex items-center gap-2 rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-3 text-sm font-semibold text-foreground/80 transition hover:border-white/18 hover:bg-white/[0.06]"
+    className="inline-flex items-center gap-2 rounded-[20px] border border-border/30 bg-surface-muted/50 px-4 py-3 text-sm font-semibold text-foreground/80 transition hover:border-border/60 hover:bg-surface-muted"
   >
     <SlidersHorizontal className="h-4 w-4" />
     Filters
   </button>
 
-  <label className="inline-flex items-center gap-3 rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-3 text-sm font-semibold text-foreground/80">
+  <label className="inline-flex items-center gap-3 rounded-[20px] border border-border/30 bg-surface-muted/50 px-4 py-3 text-sm font-semibold text-foreground/80 transition hover:border-border/60 hover:bg-surface-muted">
     <ArrowDownUp className="h-4 w-4" />
     <select
       value={sortBy}
       onChange={(event) => setSortBy(event.target.value)}
-      className="border-none text-sm text-foreground outline-none "
-      style={{colorScheme: "dark"}}
+      className="appearance-none border-none bg-transparent p-0 pr-2 text-sm text-foreground outline-none cursor-pointer focus:ring-0"
     >
       {SORT_OPTIONS.map((option) => (
-        <option key={option.value} value={option.value} className=" text-white">
+        <option key={option.value} value={option.value} className="bg-surface text-foreground">
           {option.label}
         </option>
       ))}
     </select>
   </label>
 
-  <label className="inline-flex items-center gap-3 rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-3 text-sm font-semibold text-foreground/80">
+  <label className="inline-flex items-center gap-3 rounded-[20px] border border-border/30 bg-surface-muted/50 px-4 py-3 text-sm font-semibold text-foreground/80 transition hover:border-border/60 hover:bg-surface-muted">
     <ChevronsUpDown className="h-4 w-4" />
     <select
       value={pageSize}
       onChange={(event) => setPageSize(Number(event.target.value))}
-      className="border-none text-sm text-foreground outline-none"
-    
+      className="appearance-none border-none bg-transparent p-0 pr-2 text-sm text-foreground outline-none cursor-pointer focus:ring-0"
     >
       {PAGE_SIZE_OPTIONS.map((value) => (
-        <option key={value} value={value} className="text-white">
+        <option key={value} value={value} className="bg-surface text-foreground">
           {value} / page
         </option>
       ))}
@@ -333,7 +331,7 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
           <motion.div
             initial={{opacity: 0, y: -8}}
             animate={{opacity: 1, y: 0}}
-            className="grid-row gap-4 rounded-[24px] border border-white/8 bg-white/[0.03] p-4"
+            className="grid-row gap-4 rounded-[24px] border border-border/30 bg-surface-muted/30 p-4"
           >
             {/* <FilterGroup
               title="Brand"
@@ -369,12 +367,12 @@ const {currentAttribute} = useSelector((state:RootState) => state.attribute);
                     Filter products by specific attributes like size, color, or material.
                   </p>
                 </div>
-                <label className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-[color:var(--surface)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/64">
+                <label className="inline-flex items-center gap-2 rounded-full border border-border/30 bg-surface px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-foreground/70">
                   <input
                     type="checkbox"
                     checked={availableOnly}
                     onChange={(event) => setAvailableOnly(event.target.checked)}
-                    className="h-4 w-4 rounded border-white/30 bg-transparent"
+                    className="h-4 w-4 rounded border-border/50 bg-transparent text-foreground focus:ring-foreground"
                   />
                   Available stock only
                 </label>
@@ -442,8 +440,8 @@ function SummaryTile({
     <div
       className={`rounded-[22px] border px-4 py-4 ${
         tone === "primary"
-          ? "border-white/12 bg-white/[0.05]"
-          : "border-white/8 bg-white/[0.03]"
+          ? "border-border/40 bg-surface-muted/80"
+          : "border-border/20 bg-surface-muted/40"
       }`}
     >
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-foreground/45">
@@ -516,7 +514,7 @@ function FilterGroup({
             type="button"
             onClick={() => setExpanded((curr) => !curr)}
             aria-expanded={expanded}
-            className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 transition hover:border-white/18 hover:bg-white/[0.05] hover:text-foreground"
+            className="inline-flex items-center rounded-full border border-border/30 bg-surface-muted/50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-foreground/70 transition hover:border-border/60 hover:bg-surface-muted hover:text-foreground"
           >
             {expanded ? "Show less" : "Show more"}
           </button>
@@ -537,8 +535,8 @@ function FilterGroup({
               onClick={() => onToggle(value)}
               className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                 selected
-                  ? "border-white/14 bg-white/[0.08]"
-                  : "border-white/8 bg-white/[0.03] text-foreground/66 hover:text-foreground"
+                  ? "border-border/60 bg-surface-muted shadow-sm text-foreground"
+                  : "border-border/30 bg-surface-muted/30 text-foreground/60 hover:text-foreground hover:bg-surface-muted"
               }`}
             >
               {selected ? <Check className="h-3.5 w-3.5" /> : null}

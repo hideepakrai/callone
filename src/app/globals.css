@@ -51,9 +51,9 @@
     --accent-grey: #F3F4F6;
     
     --premium-card-bg: #FFFFFF;
-    --premium-card-border: rgba(0, 0, 0, 0.08);
-    --premium-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-    --premium-card-shadow-hover: 0 10px 24px rgba(0, 0, 0, 0.04);
+    --premium-card-border: rgba(0, 0, 0, 0.03);
+    --premium-card-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
+    --premium-card-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.05);
   }
 
   .dark {

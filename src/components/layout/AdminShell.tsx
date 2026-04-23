@@ -115,8 +115,8 @@ export function AdminShell({children, user}: AdminShellProps) {
     pathname.startsWith("/admin/orders/") ||
     pathname.startsWith("/admin/cart");
 
-  const shellWidthClass = isWideWorkspace ? "max-w-[1600px]" : "max-w-[1280px]";
-  const contentLiftClass = isWideWorkspace ? "-mt-24" : "-mt-16";
+  const shellWidthClass = isWideWorkspace ? "max-w-full px-12" : "max-w-[1280px]";
+  const contentLiftClass = isWideWorkspace ? "-mt-28 " : "-mt-16";
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -186,7 +186,7 @@ export function AdminShell({children, user}: AdminShellProps) {
       <div className="relative min-h-screen overflow-x-hidden text-foreground">
         <MegaSearch isOpen={searchOpen} onClose={() => setSearchOpen(false)} role={viewRole} />
 
-        <header className="header-shell sticky inset-x-0 top-0 z-[1000] border-b">
+        <header className="header-shell sticky inset-x-0 top-0 z-[1000] border-b px-12">
           <div className="mx-auto flex h-[var(--admin-header-height)] items-center justify-between gap-4 px-4 sm:px-6">
             {/* Logo Section */}
             <div className="flex items-center gap-6">
@@ -197,7 +197,7 @@ export function AdminShell({children, user}: AdminShellProps) {
                 <Menu size={20} />
               </button>
               <Link href="/admin" className="group">
-                <div className="flex h-11 w-[104px] items-center justify-center rounded-xl border border-[color:var(--header-border)] bg-[color:var(--header-control-bg)] px-2 transition group-hover:bg-[color:var(--header-control-hover)]">
+                <div className="flex h-11 w-[104px] items-center justify-center rounded-xl  px-2 transition group-hover:bg-[color:var(--header-control-hover)]">
                   <Image
                     src="/images/brands/callaway-logo-white.png"
                     alt="Callaway"
@@ -433,7 +433,7 @@ export function AdminShell({children, user}: AdminShellProps) {
         </AnimatePresence>
 
         <div className="relative">
-          <div className="relative h-[240px] overflow-hidden bg-black">
+          <div className="relative h-[240px] overflow-hidden bg-background">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeHeroSlide.id}
@@ -441,7 +441,7 @@ export function AdminShell({children, user}: AdminShellProps) {
                 animate={{opacity: 1}}
                 exit={{opacity: 0}}
                 transition={{duration: 0.8}}
-                className="absolute inset-0"
+                className="absolute inset-0 dark:opacity-100 opacity-20 grayscale dark:grayscale-0 transition-opacity"
                 style={{
                   backgroundImage: `url(${activeHeroSlide.image})`,
                   backgroundSize: "cover",
@@ -451,8 +451,8 @@ export function AdminShell({children, user}: AdminShellProps) {
               />
             </AnimatePresence>
             {/* Soft Overlay */}
-            <div className="absolute inset-0 bg-background/40 dark:bg-background/60" />
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background via-background/60 to-transparent" />
+            {/* <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/20 dark:from-background dark:via-background/70 dark:to-transparent" /> */}
+            {/* <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background via-background/80 to-transparent" /> */}
           </div>
 
           <main className={clsx("relative z-10 px-4 pb-20 sm:px-5", contentLiftClass)}>

@@ -204,12 +204,12 @@ export function ProductTable({
                     );
                   })()}
                 </td>
-                <td className="border-b border-border/60 px-4 py-4 align-top">
+                <td className="border-b border-border/60 px-4 py-4 align-top shadow-none">
                   <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${statusClasses(row.status)}`}>
                     {row.status}
                   </span>
                 </td>
-                <td className="border-b border-border/60 px-4 py-4 align-top">
+                <td className="border-b border-border/60 px-4 py-4 align-top shadow-none">
                   <div className="flex items-center gap-1.5">
                     <div className="group relative">
                       <Link

@@ -45,14 +45,14 @@ export function InsightMetricCard({
   isLoading?: boolean;
 }) {
   // Use dark text for all colored (pastel) cards as per user reference
-  const textClass = accent ? "text-[#0B0B0B]" : "text-foreground";
-  const mutedClass = accent ? "text-[#0B0B0B]/60" : "text-muted";
+  const textClass = accent ? "" : "text-foreground";
+  const mutedClass = accent ? "" : "text-muted";
 
   return (
     <div 
       className="group premium-card p-6 relative overflow-hidden"
       style={{
-        backgroundColor: accent || "var(--premium-card-bg)",
+        // backgroundColor: accent || "var(--premium-card-bg)",
         backgroundImage: accent ? 'none' : undefined,
       }}
     >
@@ -64,7 +64,7 @@ export function InsightMetricCard({
           {isLoading ? (
             <div className="h-9 w-24 animate-pulse rounded-lg bg-black/10 mt-1" />
           ) : (
-            <p className={`text-3xl font-black tracking-tight ${textClass} sm:text-4xl`}>
+            <p className={`text-3xl font-black tracking-tight  font-semibold ${textClass} sm:text-4xl`}>
               {value}
             </p>
           )}

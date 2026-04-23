@@ -82,7 +82,7 @@ export function SkuQuantityInput({
         "inline-flex items-stretch overflow-hidden rounded-xl border transition-all duration-300",
         isError
           ? "border-border/14 bg-card ring-1 ring-border/10 shadow-[0_0_15px_rgba(255,255,255,0.06)]"
-          : "border-border/10 bg-card shadow-[0_8px_24px_rgba(0,0,0,0.35)] hover:border-border/18 hover:shadow-[0_10px_30px_rgba(0,0,0,0.45)]"
+          : "border-border/10 bg-card hover:border-border/18 "
       )}
       style={{ height: "40px" }}
     >

@@ -344,7 +344,7 @@ export default function CartPage() {
     <GetAllProducts/>
       <OrderHydration />
       <Ordercard/>
-      <div className="mx-auto max-w-[1600px] space-y-10 pb-32 pt-5 px-4 md:px-10">
+      <div className="mx-auto max-w-[1600px] px-18 space-y-10 pb-32 pt-5 px-4 md:px-10">
         <div className="flex items-end justify-between">
           <PageHeader
             title={!orderNumber || orderNumber === 'new' ? 'New Workspace Order' : `Order: #${orderNumber}`}
