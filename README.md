@@ -88,6 +88,7 @@ CallawayOne is the monolithic replacement for the legacy OMS. The rebuild keeps 
 - Product media now supports a shared product-level image collection key so size runs can reuse one gallery set by default.
 - Redesigned dashboard with live charts, hover-ready metric cards, brand coverage, and team activity insights.
 - Separate analytics route for weekly order trends, highest-selling products, role mix, and individual contribution views.
+- Optional env-gated `/admin/ai` AI home for chat-first admin exploration without replacing the current dashboard.
 - CSV export endpoints for brands, warehouses, roles, users, products, and orders.
 - Sheet calibration workspace inspired by `OLD/call-check` with:
   - default sample CSV under `public/sample-data/brand-calibration.csv`
@@ -194,6 +195,7 @@ System roles currently seeded:
 | ---------------------------------- | ------------------ | --------------------------------------------------------------------------------- |
 | `/login`                           | live               | Credentials auth against Mongo users                                              |
 | `/admin`                           | live               | Overview dashboard with live counts                                               |
+| `/admin/ai`                        | preview            | Env-gated chat-first AI admin home with a separate collapsible left-rail layout   |
 | `/admin/analytics`                 | live               | Weekly trends, top products, role mix, and people insights                        |
 | `/admin/orders`                    | live               | Order list and detail route                                                       |
 | `/admin/orders/new`                | live               | Admin checkout with availability-aware reservation                                |
@@ -562,6 +564,7 @@ MONGODB_URI=your-mongodb-uri
 MONGODB_DB_NAME=callone
 NEXTAUTH_SECRET=your-nextauth-secret
 NEXTAUTH_URL=https://darkseagreen-badger-376276.hostingersite.com
+NEXT_PUBLIC_CALLONE_ENABLE_AI_ADMIN=false
 CALLONE_BOOTSTRAP_ADMIN_EMAIL=admin@callone.local
 CALLONE_BOOTSTRAP_ADMIN_PASSWORD=CalloneAdmin@123
 MONGODB_AUTH_SOURCE=admin
@@ -573,6 +576,7 @@ Important:
 - `MONGODB_URI` is required at runtime.
 - `MONGODB_DB_NAME` should match the database name inside your Mongo cluster.
 - `NEXTAUTH_URL` must be the full https URL for the deployed site.
+- `NEXT_PUBLIC_CALLONE_ENABLE_AI_ADMIN=true` enables the separate `/admin/ai` chat-style admin home.
 - Build is safe without DB only because admin/login routes are force-dynamic.
 - The login bootstrap only refreshes the seeded auth accounts when `CALLONE_RUNTIME_BOOTSTRAP=true`, so the bootstrap admin password follows `CALLONE_BOOTSTRAP_ADMIN_PASSWORD`.
 - If you need the full demo dataset in production, run `npm run seed` against the target database once.

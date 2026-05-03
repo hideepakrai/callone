@@ -9,10 +9,12 @@ export function LoginForm({
   defaultEmail,
   defaultPasswordHint,
   presets = [],
+  autoLoginEnabled = false,
 }: {
   defaultEmail: string;
   defaultPasswordHint: string;
   presets?: Array<{label: string; email: string; description: string}>;
+  autoLoginEnabled?: boolean;
 }) {
   const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState("");
@@ -20,12 +22,38 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [mounted, setMounted] = useState(false);
+  const [autoLoginAttempted, setAutoLoginAttempted] = useState(false);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+  const postLoginUrl = callbackUrl.startsWith("/launch")
+    ? callbackUrl
+    : `/launch?target=${encodeURIComponent(callbackUrl)}`;
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!mounted || !autoLoginEnabled || autoLoginAttempted) {
+      return;
+    }
+
+    setAutoLoginAttempted(true);
+    startTransition(async () => {
+      const response = await signIn("credentials", {
+        email,
+        password: "__dev_auto_login__",
+        redirect: false,
+      });
+
+      if (response?.error) {
+        setError("Auto login is enabled, but the local role session could not be created.");
+        return;
+      }
+
+      window.location.href = postLoginUrl;
+    });
+  }, [autoLoginAttempted, autoLoginEnabled, email, mounted, postLoginUrl, startTransition]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -34,7 +62,7 @@ export function LoginForm({
     startTransition(async () => {
       const response = await signIn("credentials", {
         email,
-        password,
+        password: autoLoginEnabled ? "__dev_auto_login__" : password,
         redirect: false,
       });
       
@@ -43,7 +71,7 @@ export function LoginForm({
         return;
       }
 
-      window.location.href = callbackUrl;
+      window.location.href = postLoginUrl;
     });
   };
 
@@ -89,6 +117,12 @@ export function LoginForm({
       ) : null}
 
       <div className="space-y-5">
+        {autoLoginEnabled ? (
+          <div className="rounded-xl border border-border bg-[color:var(--surface)] px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground/72">
+            Development auto login is active. Selected role access is granted without password validation.
+          </div>
+        ) : null}
+
         <div className="space-y-1.5">
           <label className="ml-1 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-foreground/48">
              User Name
@@ -120,9 +154,10 @@ export function LoginForm({
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              disabled={autoLoginEnabled}
               className="w-full rounded-2xl border border-border bg-[color:var(--control-bg)] py-3 pl-10 pr-12 text-sm font-medium tracking-wide text-foreground placeholder:text-foreground/18 transition-all outline-none focus:border-[color:var(--primary)] focus:bg-[color:var(--control-bg-hover)]"
-              placeholder={defaultPasswordHint}
-              required
+              placeholder={autoLoginEnabled ? "Password bypassed in development" : defaultPasswordHint}
+              required={!autoLoginEnabled}
             />
             <button
               type="button"

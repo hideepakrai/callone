@@ -3,6 +3,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/lib/db/connection";
 import { ensureSystemBootstrap } from "@/lib/auth/bootstrap";
+import { isDevAutoLoginEnabled, resolveDevLoginRole } from "@/lib/auth/dev-login";
 import { ROLE_PERMISSIONS, type RoleKey, normalizeRole } from "@/lib/auth/permissions";
 import { Role } from "@/lib/db/models/Role";
 import { User } from "@/lib/db/models/User";
@@ -44,11 +45,23 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email) {
           return null;
         }
 
         const normalizedEmail = credentials.email.toLowerCase().trim();
+        const devLoginUser = isDevAutoLoginEnabled()
+          ? resolveDevLoginRole(normalizedEmail)
+          : null;
+
+        if (devLoginUser) {
+          return devLoginUser;
+        }
+
+        if (!credentials.password) {
+          return null;
+        }
+
         const bootstrapEmail = (
           process.env.CALLONE_BOOTSTRAP_ADMIN_EMAIL ?? "admin@callone.local"
         )

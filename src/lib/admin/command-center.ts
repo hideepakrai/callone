@@ -3,7 +3,10 @@ import { HERO_BANNERS, type AdminCommandItem } from "./types";
 import { ADMIN_PRODUCTS_SHEET_MENU_ITEMS } from "./sheet-sections";
 import {ACCOUNT_SECTIONS} from "@/lib/admin/account-sections";
 import {CATALOG_SECTIONS} from "@/lib/admin/catalog-sections";
+import { isAiAdminEnabled } from "@/lib/admin/feature-flags";
 import { BadgeCheck, FileSpreadsheet, FileUp, FolderTree, LayoutDashboard, Package, PlusCircle, Shield, ShoppingBag, Store, UserPlus, Users, Warehouse } from "lucide-react";
+
+const aiAdminEnabled = isAiAdminEnabled();
 
 export const ADMIN_PRODUCTS_MENU_ITEMS: AdminCommandItem[] = CATALOG_SECTIONS.map(
   (section) => ({
@@ -62,6 +65,21 @@ export const ADMIN_NAV_ITEMS: AdminCommandItem[] = [
     roles: ["super_admin", "admin", "manager", "sales_rep", "retailer"],
     heroImage: HERO_BANNERS.graphite,
   },
+  ...(aiAdminEnabled
+    ? [
+        {
+          id: "ai-admin",
+          label: "AI Admin",
+          description: "Split-pane workspace preview for AI-guided admin operations.",
+          href: "/admin/ai",
+          icon: LayoutDashboard,
+          group: "Navigate",
+          keywords: ["ai admin", "workspace", "preview", "chat", "operations"],
+          roles: ["super_admin", "admin", "manager", "sales_rep"],
+          heroImage: HERO_BANNERS.graphite,
+        } satisfies AdminCommandItem,
+      ]
+    : []),
   {
     id: "orders",
     label: "Orders",

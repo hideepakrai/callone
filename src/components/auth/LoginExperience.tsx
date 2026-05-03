@@ -9,10 +9,12 @@ export function LoginExperience({
   defaultEmail,
   defaultPasswordHint,
   presets = [],
+  autoLoginEnabled = false,
 }: {
   defaultEmail: string;
   defaultPasswordHint: string;
   presets?: Array<{label: string; email: string; description: string}>;
+  autoLoginEnabled?: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -117,6 +119,7 @@ export function LoginExperience({
               defaultEmail={defaultEmail}
               defaultPasswordHint={defaultPasswordHint}
               presets={presets}
+              autoLoginEnabled={autoLoginEnabled}
             />
 
             <div className="mt-8 text-center lg:text-left">

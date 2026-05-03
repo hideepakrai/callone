@@ -17,6 +17,8 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 
+const DASHBOARD_PRELOAD_STORAGE_KEY = "callone.dashboard.preload.v1";
+
 const money = new Intl.NumberFormat("en-IN", {
   style: "currency",
   currency: "INR",
@@ -30,6 +32,24 @@ export default function AdminDashboardPage() {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
+    try {
+      const preloadedDashboard = sessionStorage.getItem(
+        DASHBOARD_PRELOAD_STORAGE_KEY
+      );
+
+      if (preloadedDashboard) {
+        sessionStorage.removeItem(DASHBOARD_PRELOAD_STORAGE_KEY);
+        const result = JSON.parse(preloadedDashboard);
+        startTransition(() => {
+          setData(result);
+          setLoading(false);
+        });
+        return;
+      }
+    } catch (storageError) {
+      console.warn("DASHBOARD_PRELOAD_WARN:", storageError);
+    }
+
     async function fetchDashboard() {
       try {
         const response = await fetch("/api/dashboard");
